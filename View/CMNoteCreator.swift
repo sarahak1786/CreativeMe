@@ -6,12 +6,11 @@
 //
 
 /*
- Alterations to Complete:
- - Increase size of button range (create work)
- - Fix all positions to adapt to other iPad Sizes
- - Add functionality of the card
- - Accessibility Features:
-  - Dynamic Type, Accessibility Labels, etc.
+ Adapt to All Devices of iPad and iOS
+ Increase size of button range (create work)
+ Accessibility
+ Fix UI
+ Functionality + Better
  */
 
 import SwiftUI
@@ -19,7 +18,6 @@ import SwiftUI
 struct CMNoteCreator: View {
     
     @State private var orientation = UIDeviceOrientation.unknown
-    
     @Environment(\.sizeCategory) var sizeCategory
     @Environment(\.colorScheme) var colorScheme
     
@@ -146,7 +144,7 @@ struct CMInformationCard: View {
     @State private var type = ""
     @State private var showTutorial = false
     
-    let types = ["Poem", "Haiku", "Argumentative Essay", "Expository Essay", "Narrative Essay", "Informative Essay", "Shakespearan Sonnet", "Spenserian Sonnet", "Play", "Song", "Speech", "Other"]
+    let types = ["Poem", "Haiku", "Argumentative Essay", "Expository Essay", "Narrative Essay", "Informative Essay", "Shakespearean Sonnet", "Spenserian Sonnet", "Play", "Song", "Speech", "Other"]
     
     var body: some View {
         ZStack {
@@ -192,7 +190,7 @@ struct CMInformationCard: View {
     }
 }
 
-struct SwiftUIView_Previews: PreviewProvider {
+struct CMNoteCreator_Previews: PreviewProvider {
     static var previews: some View {
         CMNoteCreator()
     }
