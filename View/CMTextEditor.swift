@@ -5,6 +5,11 @@
 //  Created by Sarah Akhtar on 3/18/23.
 //
 
+/*
+ Adapt to All Devices of iPad and iOS
+ Accessibility
+ */
+
 import SwiftUI
 
 struct CMTextEditor: View {
@@ -28,6 +33,7 @@ struct CMTextEditor: View {
                 Text("Title of Your Work")
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.06)
                     .font(.largeTitle.bold())
+                    .foregroundColor(.white)
                 
                 CMTextEditorView()
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.47)
@@ -70,6 +76,7 @@ struct CMTextEditorView: View {
                 
                 if #available(iOS 16.0, *) {
                     TextEditor(text: $bodyText)
+                        .font(.title2)
                         .scrollContentBackground(.hidden)
                         .background(colorScheme == .dark ? Color.mainGray : .white)
                         .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.65)
@@ -77,6 +84,7 @@ struct CMTextEditorView: View {
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 } else {
                     TextEditor(text: $bodyText)
+                        .font(.title2)
                         .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.65)
                         .cornerRadius(10)
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
@@ -154,7 +162,5 @@ struct CMSideBarView: View {
 struct CMTextEditor_Previews: PreviewProvider {
     static var previews: some View {
         CMTextEditor()
-        CMTextEditorView()
-        CMSideBarView()
     }
 }
