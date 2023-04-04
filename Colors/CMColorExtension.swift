@@ -13,6 +13,10 @@ extension Color {
     static let mainPink = Color("BKPink")
     static let mainGray = Color("BKGray")
     
+    static let darkBlue = Color("DarkBlue")
+    static let darkPink = Color("DarkPink")
+    static let darkPurple = Color("DarkPurple")
+    
     static let purpleLearn = Color("PurpleLearn")
     static let purpleRandom = Color("PurpleRandom")
     static let purpleSave = Color("PurpleSave")
