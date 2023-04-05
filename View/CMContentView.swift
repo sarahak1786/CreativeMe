@@ -6,13 +6,18 @@
 
 import SwiftUI
 
+/*
+ Room for a beginning animation!
+ */
+
 struct CMContentView: View {
     var body: some View {
         VStack {
-            CMTextEditor()
+            CMHomeView()
         }
     }
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
