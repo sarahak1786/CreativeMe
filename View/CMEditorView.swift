@@ -12,38 +12,49 @@ struct CMEditorView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var allNotes: Notes
     
-    let title: String
-    let type: NoteType
-    let id: UUID
+    let note: Note
+    let tutorial: Bool
     
     @State private var hint: Bool = false
     var hintString: String {
-        if type == .poem {
+        if note.type == .poem {
             return "Poems may contain any form of rhyme!"
-        } else if type == .haiku {
+        } else if note.type == .haiku {
             return "A haiku has a 5-7-5 rhyme scheme!"
-        } else if type == .argumentativeEssay {
+        } else if note.type == .argumentativeEssay {
             return "Your claim can be subjective!"
-        } else if type == .expositoryEssay {
+        } else if note.type == .expositoryEssay {
             return "Your claim must not be subjective!"
-        } else if type == .informativeEssay {
+        } else if note.type == .informativeEssay {
             return "Your essay must include research!"
-        } else if type == .narrativeEssay {
+        } else if note.type == .narrativeEssay {
             return "Your essay may replicate a plot stucture!"
-        } else if type == .shakespeareanSonnet {
+        } else if note.type == .shakespeareanSonnet {
             return "Rhyme scheme: ABAB-CDCD-EFEF-GG"
-        } else if type == .spenserianSonnet {
+        } else if note.type == .spenserianSonnet {
             return "Rhyme scheme: ABAB-BCBC-CDCD-EE"
-        } else if type == .play {
+        } else if note.type == .play {
             return "Your play may include stage directions."
-        } else if type == .song {
+        } else if note.type == .song {
             return "Don't forget to add a bridge!"
-        } else if type == .speech {
+        } else if note.type == .speech {
             return "Include a quote at the end!"
         } else {
             return "No tips for this one. You got this!"
         }
     }
+    
+    @State private var showPoemTutorial: Bool = false
+    @State private var showHaikuTutorial: Bool = false
+    @State private var showArgumentativeTutorial: Bool = false
+    @State private var showExpositoryTutorial: Bool = false
+    @State private var showNarrativeTutorial: Bool = false
+    @State private var showInformativeTutorial: Bool = false
+    @State private var showSonnetShakeTutorial: Bool = false
+    @State private var showSonnetSpenTutorial: Bool = false
+    @State private var showPlayTutorial: Bool = false
+    @State private var showSongTutorial: Bool = false
+    @State private var showSpeechTutorial: Bool = false
     
     var body: some View {
         ZStack {
@@ -51,22 +62,69 @@ struct CMEditorView: View {
                 .ignoresSafeArea()
             
             GeometryReader { geo in
-                Text(title)
+                Text(note.title)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.05)
                     .font(.largeTitle.bold())
                     .foregroundColor(.white)
                 
-                CMTextEditor(id: id)
+                CMTextEditor(note: note)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.47)
                     .padding(.bottom, 30)
                 
-                CMSideBarView(id: id)
+                CMSideBarView(note: note)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.48)
-                
-                Button("Print") {
-                    print("This is selected on EditorView from main\(id)")
-                }
-                .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.47)
+            }
+        }
+        .onAppear(perform: displayTutorial)
+        .fullScreenCover(isPresented: $showPoemTutorial, content: CMPoemView.init)
+        .fullScreenCover(isPresented: $showHaikuTutorial, content: CMHaikuView.init)
+        .fullScreenCover(isPresented: $showArgumentativeTutorial) {
+            CMEssayView(essayType: NoteType.argumentativeEssay)
+        }
+        .fullScreenCover(isPresented: $showExpositoryTutorial) {
+            CMEssayView(essayType: NoteType.expositoryEssay)
+        }
+        .fullScreenCover(isPresented: $showNarrativeTutorial) {
+            CMEssayView(essayType: NoteType.narrativeEssay)
+        }
+        .fullScreenCover(isPresented: $showInformativeTutorial) {
+            CMEssayView(essayType: NoteType.informativeEssay)
+        }
+        .fullScreenCover(isPresented: $showSonnetShakeTutorial) {
+            CMSonnetView(sonnetType: NoteType.shakespeareanSonnet)
+        }
+        .fullScreenCover(isPresented: $showSonnetSpenTutorial) {
+            CMSonnetView(sonnetType: NoteType.spenserianSonnet)
+        }
+        .fullScreenCover(isPresented: $showPlayTutorial, content: CMPlayView.init)
+        .fullScreenCover(isPresented: $showSongTutorial, content: CMSongView.init)
+        .fullScreenCover(isPresented: $showSpeechTutorial, content: CMSpeechView.init)
+    }
+    
+    func displayTutorial() {
+        if tutorial == true {
+            if note.type == .poem {
+                showPoemTutorial.toggle()
+            } else if note.type == .haiku {
+                showHaikuTutorial.toggle()
+            } else if note.type == .argumentativeEssay {
+                showArgumentativeTutorial.toggle()
+            } else if note.type == .expositoryEssay {
+                showExpositoryTutorial.toggle()
+            } else if note.type == .informativeEssay {
+                showInformativeTutorial.toggle()
+            } else if note.type == .narrativeEssay {
+                showNarrativeTutorial.toggle()
+            } else if note.type == .shakespeareanSonnet {
+                showSonnetShakeTutorial.toggle()
+            } else if note.type == .spenserianSonnet {
+                showSonnetSpenTutorial.toggle()
+            } else if note.type == .play {
+                showPlayTutorial.toggle()
+            } else if note.type == .song {
+                showSongTutorial.toggle()
+            } else if note.type == .speech {
+                showSpeechTutorial.toggle()
             }
         }
     }
@@ -76,12 +134,13 @@ struct CMTextEditor: View {
     
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var allNotes: Notes
-    @State private var bodyText = "Let your mind flow."
-    let id: UUID
+    let note: Note
     
-    init(id: UUID) {
+    @State private var bodyText = "Let your mind flow."
+    
+    init(note: Note) {
         UITextView.appearance().backgroundColor = .red
-        self.id = id
+        self.note = note
     }
     
     var body: some View {
@@ -91,14 +150,14 @@ struct CMTextEditor: View {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                         .cornerRadius(50)
-                        .shadow(radius: 20)
+//                        .shadow(radius: 5)
                         .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.70)
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 } else {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? .black : .white)
                         .cornerRadius(50)
-                        .shadow(radius: 20)
+//                        .shadow(radius: 5)
                         .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.70)
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 }
@@ -120,33 +179,18 @@ struct CMTextEditor: View {
                 }
                 
                 Button("Save Work") {
-                    for i in 0..<allNotes.notes.count {
-                        if allNotes.notes[i].id == id {
-                            allNotes.notes[i].body = bodyText
-                        }
-                    }
+                    allNotes.saveBody(note, bodyText)
                 }
                 .font(.title2)
                 .cornerRadius(10)
                 .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.height * 0.3)
             }
         }
-        .onAppear(perform: printID)
         .onAppear(perform: setBody)
     }
     
     func setBody() {
-        for i in 0..<allNotes.notes.count {
-            if allNotes.notes[i].id == id {
-                bodyText = allNotes.notes[i].body
-            } else {
-                bodyText = "Let your mind explore the realm of writing."
-            }
-        }
-    }
-    
-    func printID() {
-        print("This is selected on editor from button before taking in\(id)")
+        bodyText = allNotes.getBody(note)
     }
 }
 
@@ -156,32 +200,30 @@ struct CMSideBarView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     
-    @State private var favorites: Bool = false
-    @State private var type: NoteType = .poem
-    let id: UUID
+    let note: Note
     
     var typeString: String {
-        if type == .poem {
+        if note.type == .poem {
             return "Poem"
-        } else if type == .haiku {
+        } else if note.type == .haiku {
             return "Haiku"
-        } else if type == .argumentativeEssay {
+        } else if note.type == .argumentativeEssay {
             return "Argumentative Essay"
-        } else if type == .expositoryEssay {
+        } else if note.type == .expositoryEssay {
             return "Expository Essay"
-        } else if type == .informativeEssay {
+        } else if note.type == .informativeEssay {
             return "Informative Essay"
-        } else if type == .narrativeEssay {
+        } else if note.type == .narrativeEssay {
             return "Narratve Essay"
-        } else if type == .shakespeareanSonnet {
+        } else if note.type == .shakespeareanSonnet {
             return "Shakespearean Sonnet"
-        } else if type == .spenserianSonnet {
+        } else if note.type == .spenserianSonnet {
             return "Spenserian Sonnet"
-        } else if type == .play {
+        } else if note.type == .play {
             return "Play"
-        } else if type == .song {
+        } else if note.type == .song {
             return "Song"
-        } else if type == .speech {
+        } else if note.type == .speech {
             return "Speech"
         } else {
             return "Other"
@@ -195,14 +237,14 @@ struct CMSideBarView: View {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                         .cornerRadius(100)
-                        .shadow(radius: 20)
+//                        .shadow(radius: 5)
                         .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.10)
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * 0.92)
                 } else {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? .black : .white)
                         .cornerRadius(100)
-                        .shadow(radius: 20)
+//                        .shadow(radius: 5)
                         .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.10)
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * 0.92)
                 }
@@ -214,40 +256,34 @@ struct CMSideBarView: View {
                         Image(systemName: "arrow.left.circle.fill")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: geo.size.width * 0.09, height: geo.size.height)
+                            .frame(width: geo.size.width * 0.09, height: geo.size.height * 0.09)
                             .foregroundColor(.mainPink)
                             .colorScheme(.light)
                     }
                     .position(x: geo.frame(in: .local).midX * 0.30, y: geo.frame(in: .local).maxY * 0.92)
                     
                     Button() {
-                        setFavorite()
-                        //Have it reflect if saved or not
+                        allNotes.addFavorites(note)
                     } label: {
                         ZStack {
                             Circle()
-                                .foregroundColor(favorites ? .yellow : .clear)
-                                .frame(width: geo.size.width * 0.05, height: geo.size.height)
+                                .foregroundColor(note.favorites ? .yellow : .clear)
+                                .frame(width: geo.size.width * 0.05, height: geo.size.height * 0.05)
                             
                             Image(systemName: "bookmark.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: geo.size.width * 0.05, height: geo.size.height)
+                                .frame(width: geo.size.width * 0.05, height: geo.size.height * 0.05)
                                 .foregroundColor(.purpleSave)
                                 .colorScheme(.light)
-                        }
-                        .onTapGesture {
-                            withAnimation {
-                                favorites.toggle()
-                            }
                         }
                     }
                     .position(x: geo.frame(in: .local).midX * 0.07, y: geo.frame(in: .local).maxY * 0.92)
                     
                     Text("Type: \(typeString)")
-                        .font(.title2.bold())
+                        .font(.headline.bold())
                         .foregroundColor(.white)
-                        .frame(width: geo.size.width * 0.20, height: geo.size.height * 0.05)
+                        .frame(width: geo.size.width * 0.20, height: geo.size.height * 0.03)
                         .background(Color.mainBlue)
                         .cornerRadius(100)
                         .position(x: geo.frame(in: .local).midX * 0.25, y: geo.frame(in: .local).maxY * 0.92)
@@ -259,7 +295,7 @@ struct CMSideBarView: View {
                         Image(systemName: "theatermasks.circle")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: geo.size.width * 0.09, height: geo.size.height)
+                            .frame(width: geo.size.width * 0.09, height: geo.size.height * 0.09)
                             .foregroundColor(.purpleLearn)
                             .colorScheme(.light)
                             .padding()
@@ -268,30 +304,12 @@ struct CMSideBarView: View {
                 }
             }
         }
-        .onAppear(perform: setText)
-    }
-    
-    func setText() {
-        for i in 0..<allNotes.notes.count {
-            if allNotes.notes[i].id == id {
-                type = allNotes.notes[i].type
-            } else {
-                type = .other
-            }
-        }
-    }
-    
-    func setFavorite() {
-        for i in 0..<allNotes.notes.count {
-            if allNotes.notes[i].id == id {
-                allNotes.notes[i].favorites.toggle()
-            }
-        }
+        .ignoresSafeArea(.keyboard)
     }
 }
 
 struct CMEditorView_Previews: PreviewProvider {
     static var previews: some View {
-        CMEditorView(title: "", type: .argumentativeEssay, id: UUID())
+        CMEditorView(note: Note(title: "Preview Note", body: "This is it!", type: .poem, favorites: false), tutorial: false)
     }
 }

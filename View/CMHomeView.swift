@@ -24,14 +24,14 @@ struct CMHomeView: View {
                 GeometryReader { geo in
                     Image(colorScheme == .dark ? "CreativeMeDark" : "CreativeMeLogo")
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
-                        .shadow(radius: 20)
+//                        .shadow(radius: 5)
                     
                     CMNoteView()
                         .contentShape(Capsule())
                         .position(x: geo.frame(in: .local).midX * 0.75, y: geo.frame(in: .local).minY + geo.size.height * 0.80)
                     
                     CMInfoBarView()
-                        .position(x: geo.frame(in: .local).midX * 1.6, y: geo.frame(in: .local).minY + geo.size.height * 0.58)
+                        .position(x: geo.frame(in: .local).midX * 1.6, y: geo.frame(in: .local).midY + geo.size.height * 0.05)
                     
                     CMAddNote()
                         .position(x: geo.frame(in: .local).midX * 0.75, y: geo.frame(in: .local).minY + geo.size.height * 0.40)
@@ -58,34 +58,30 @@ struct CMAddNote: View {
     
     var body: some View {
         ZStack {
-            GeometryReader { geo in
-                Rectangle()
-                    .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
-                    .cornerRadius(20)
-                    .shadow(radius: 20)
-                    .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.35)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                
-                Button() {
-                    showCreatorView.toggle()
-                } label: {
-                    VStack {
-                        Text("+")
-                            .foregroundColor(.primary)
-                            .font(.system(size: 100))
-                            .fontWeight(.thin)
-                        Text("New Note")
-                            .foregroundColor(.primary)
-                            .font(.system(size: 45))
-                            .fontWeight(.thin)
-                    }
+            Rectangle()
+                .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
+                .cornerRadius(20)
+//                .shadow(radius: 5)
+                .frame(width: 500, height: 500)
+            
+            Button() {
+                showCreatorView.toggle()
+            } label: {
+                VStack {
+                    Text("+")
+                        .foregroundColor(.primary)
+                        .font(.system(size: 100))
+                        .fontWeight(.thin)
+                    Text("New Note")
+                        .foregroundColor(.primary)
+                        .font(.system(size: 45))
+                        .fontWeight(.thin)
                 }
-                .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.35)
-                .contentShape(Rectangle())
-                .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                .onTapGesture {
-                    showCreatorView.toggle()
-                }
+            }
+            .frame(width: 500, height: 500)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                showCreatorView.toggle()
             }
         }
         .fullScreenCover(isPresented: $showCreatorView, content: CMCreatorView.init)
@@ -98,6 +94,7 @@ struct CMNoteView: View {
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     @EnvironmentObject var allNotes: Notes
     
     @State private var selectedType: String = "Poem"
@@ -170,22 +167,18 @@ struct CMNoteView: View {
     }
     
     @State private var showEditor: Bool = false
-    @State private var selectedNoteTitle: String = ""
-    @State private var selectedNoteType: NoteType = .haiku
-    @State private var selectedID: UUID = UUID()
-    @State private var selectedFavorites: Bool = false
+    @State private var note: Note = Note(id: UUID(), title: "Flawless Coastal Day", body: "Watching the view glow,\nThe beach seems to ebb and flow;\nSifting sands below", date: Date(), type: NoteType.haiku, favorites: true)
     
     var body: some View {
         ZStack {
             TabView(selection: $currentIndex) {
                 ForEach(0..<filteredNotes.count, id: \.self) { index in
-                    GeometryReader { geo in
+                    ZStack {
                         Rectangle()
                             .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                             .cornerRadius(20)
-                            .shadow(radius: 20)
-                            .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.20)
-                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
+//                            .shadow(radius: 5)
+                            .frame(width: 500, height: 270)
                         
                         VStack(alignment: .leading) {
                             VStack(alignment: .leading) {
@@ -205,8 +198,8 @@ struct CMNoteView: View {
                             
                             HStack {
                                 Button(action: {
-                                    getInfo(index: index)
-                                    showEditor.toggle()
+                                    print("LOOOOOOOOOOOOOOOOOK: \(index)")
+                                    selectItem(at: index)
                                 }, label: {
                                     Text("View               >")
                                 })
@@ -215,19 +208,6 @@ struct CMNoteView: View {
                                 .foregroundColor(.black)
                                 .padding()
                                 
-//                                Button("View               >") {
-//                                    selectedNoteTitle = filteredNotes[index].title
-//                                    selectedNoteType = filteredNotes[index].type
-//                                    selectedID = filteredNotes[index].id
-//                                    selectedFavorites = filteredNotes[index].favorites
-//                                    print("This is selected on HomeSCrren\(selectedID)")
-//                                    showEditor.toggle()
-//                                }
-//                                .cornerRadius(20)
-//                                .foregroundColor(.black)
-//                                .buttonStyle(.bordered)
-//                                .padding()
-//
                                 Spacer()
                                 
                                 Text(convertDatetoString(filteredNotes[index]))
@@ -238,8 +218,7 @@ struct CMNoteView: View {
                             .padding()
                         }
                         .padding(30)
-                        .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.20)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
+                        .frame(width: 500, height: 300)
                     }
                 }
             }
@@ -250,7 +229,7 @@ struct CMNoteView: View {
             .clipShape(RoundedRectangle(cornerRadius: 5))
             .padding()
             
-            GeometryReader { geo in
+            VStack {
                 Menu {
                     Button("Favorites") { filter = .favorites}
                     Button("Alphabetical") { filter = .alphabetical}
@@ -261,12 +240,12 @@ struct CMNoteView: View {
                         Button("Play") { filter = .type; selectedType = "Play" }
                         Button("Spenserian Sonnet") { filter = .type; selectedType = "Spenserian Sonnet" }
                         Button("Shakespearean Sonnet") { filter = .type; selectedType = "Shakespearean Sonnet" }
-                            Menu("Essays") {
-                                Button("Informative Essay") { filter = .type; selectedType = "Informative Essay" }
-                                Button("Narrative Essay") { filter = .type; selectedType = "Narrative Essay" }
-                                Button("Expository Essay") { filter = .type; selectedType = "Expository Essay" }
-                                Button("Argumentative Essay") { filter = .type; selectedType = "Argumentative Essay" }
-                            }
+                        Menu("Essays") {
+                            Button("Informative Essay") { filter = .type; selectedType = "Informative Essay" }
+                            Button("Narrative Essay") { filter = .type; selectedType = "Narrative Essay" }
+                            Button("Expository Essay") { filter = .type; selectedType = "Expository Essay" }
+                            Button("Argumentative Essay") { filter = .type; selectedType = "Argumentative Essay" }
+                        }
                         Button("Haiku") { filter = .type; selectedType = "Haiku" }
                         Button("Poem") { filter = .type; selectedType = "Poem" }
                     }
@@ -274,15 +253,17 @@ struct CMNoteView: View {
                     Label("", systemImage: "ellipsis.circle")
                         .font(.largeTitle)
                         .foregroundColor(.white)
+                        .frame(width: 80, height: 30)
                 }
-                .position(x: geo.frame(in: .local).midX * 1.4, y: geo.frame(in: .local).midY * 0.73)
-                
-                controls
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY * 1.25)
             }
+            .offset(x: 230, y: -180)
+            
+            controls
+                .offset(y: 180)
         }
+        .frame(width: 650, height: 400)
         .fullScreenCover(isPresented: $showEditor) {
-            CMEditorView(title: selectedNoteTitle, type: selectedNoteType, id: selectedID)
+            CMEditorView(note: note, tutorial: false)
         }
         .onAppear {
             index = filteredNotes.count
@@ -292,23 +273,19 @@ struct CMNoteView: View {
         }
         
         if filteredNotes.isEmpty {
-            GeometryReader { geo in
                 ZStack {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                         .opacity(0.8)
                         .cornerRadius(20)
-                        .shadow(radius: 20)
-                        .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.10)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
+//                        .shadow(radius: 5)
+                        .frame(width: 500, height: 200)
                     
                     Text("No notes created of this type.")
                         .font(.title)
                         .fontWeight(.thin)
                         .foregroundColor(.primary)
-                        .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.20)
                 }
-            }
             .onRotate { newOrientation in
                 orientation = newOrientation
             }
@@ -316,11 +293,10 @@ struct CMNoteView: View {
         }
     }
     
-    func getInfo(index: Int) {
-        selectedNoteTitle = filteredNotes[index].title
-        selectedNoteType = filteredNotes[index].type
-        selectedID = filteredNotes[index].id
-        selectedFavorites = filteredNotes[index].favorites
+    func selectItem(at index: Int) {
+        note = allNotes.getFilteredInformation(index, from: filteredNotes)
+        showEditor.toggle()
+        dismiss()
     }
     
     func convertTypeToString(_ note: Note) -> String {
@@ -377,17 +353,6 @@ struct CMInfoBarView: View {
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
     
-    @State private var barWidth: Double = 0.01
-    @State private var barHeight: Double = 0.01
-    @State private var barPosition: Double = 0.01
-    
-    @State private var iconWidth: Double = 0.01
-    @State private var iconHeight: Double = 0.01
-    @State private var iconBarPosition: Double = 0.01
-    @State private var iconLearnPosition: Double = 0.01
-    @State private var iconRandomPosition: Double = 0.01
-    @State private var iconInfoPosition: Double = 0.01
-    
     @State private var showWelcome: Bool = false
     @State private var showLearn: Bool = false
     @State private var showRandom: Bool = false
@@ -395,74 +360,67 @@ struct CMInfoBarView: View {
     
     var body: some View {
         ZStack {
-            GeometryReader { geo in
-                if #available(iOS 16.0, *) {
-                    Rectangle()
-                        .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
-                        .cornerRadius(100)
-                        .shadow(radius: 20)
-                        .frame(width: geo.size.width * barWidth, height: geo.size.height * barHeight)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * barPosition)
-                    } else {
-                    Rectangle()
-                        .foregroundColor(colorScheme == .dark ? .black : .white)
-                        .cornerRadius(100)
-                        .shadow(radius: 20)
-                        .frame(width: geo.size.width * barWidth, height: geo.size.height * barHeight)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * barPosition)
+            if #available(iOS 16.0, *) {
+                Rectangle()
+                    .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
+                    .cornerRadius(100)
+//                    .shadow(radius: 5)
+                    .frame(width: 100, height: 1000)
+                } else {
+                Rectangle()
+                    .foregroundColor(colorScheme == .dark ? .black : .white)
+                    .cornerRadius(100)
+//                    .shadow(radius: 5)
+                    .frame(width: 100, height: 800)
+            }
+            
+            VStack {
+                Button() {
+                    showWelcome.toggle()
+                } label: {
+                    Image(systemName: "line.3.horizontal.circle.fill")
+                        .font(.system(size: 70))
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.mainBlue)
+                        .colorScheme(.light)
+                        .padding(.top)
                 }
                 
-                ZStack {
-                    Button() {
-                        showWelcome.toggle()
-                    } label: {
-                        Image(systemName: "line.3.horizontal.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: geo.size.width * iconWidth, height: geo.size.height * iconHeight)
-                            .foregroundColor(.mainBlue)
-                            .colorScheme(.light)
-                    }
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * iconBarPosition)
-                    
-                    Button() {
-                        showLearn.toggle()
-                    } label: {
-                        Image(systemName: "graduationcap.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: geo.size.width * iconWidth, height: geo.size.height * iconHeight)
-                            .foregroundColor(.purpleLearn)
-                            .colorScheme(.light)
-                    }
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * iconLearnPosition)
-                    
-                    Button() {
-                        showRandom.toggle()
-                    } label: {
-                        Image(systemName: "square.and.pencil.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: geo.size.width * iconWidth, height: geo.size.height * iconHeight)
-                            .foregroundColor(.purpleRandom)
-                            .colorScheme(.light)
-                    }
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * iconRandomPosition)
-                    
-                    Button() {
-                        showInfo.toggle()
-                    } label: {
-                        Image(systemName: "info.circle.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: geo.size.width * iconWidth, height: geo.size.height * iconHeight)
-                            .foregroundColor(.mainPink)
-                            .colorScheme(.light)
-                    }
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).maxY * iconInfoPosition)
+                Button() {
+                    showLearn.toggle()
+                } label: {
+                    Image(systemName: "graduationcap.circle.fill")
+                        .font(.system(size: 70))
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.purpleLearn)
+                        .colorScheme(.light)
+                }
+                
+                Button() {
+                    showRandom.toggle()
+                } label: {
+                    Image(systemName: "square.and.pencil.circle.fill")
+                        .font(.system(size: 70))
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.purpleRandom)
+                        .colorScheme(.light)
+                }
+                
+                Spacer()
+                
+                Button() {
+                    showInfo.toggle()
+                } label: {
+                    Image(systemName: "info.circle.fill")
+                        .font(.system(size: 70))
+                        .frame(width: 80, height: 80)
+                        .foregroundColor(.mainPink)
+                        .colorScheme(.light)
+                        .padding()
                 }
             }
         }
+        .frame(width: 100, height: 800)
         .fullScreenCover(isPresented: $showWelcome, content: CMWelcomeView.init)
         .fullScreenCover(isPresented: $showLearn, content: CMLearnView.init)
         .fullScreenCover(isPresented: $showRandom, content: CMPromptView.init)
@@ -476,60 +434,15 @@ struct CMInfoBarView: View {
     
     func dynamicLayout() {
         if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
-            barWidth = 0.11
-            barHeight = 0.75
-            barPosition = 0.47
-            
-            iconWidth = 0.08
-            iconHeight = 0.08
-            iconBarPosition = 0.17
-            iconLearnPosition = 0.27
-            iconRandomPosition = 0.37
-            iconInfoPosition = 0.77
+           
         } else if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
-            barWidth = 0.13
-            barHeight = 0.75
-            barPosition = 0.47
             
-            iconWidth = 0.07
-            iconHeight = 0.07
-            iconBarPosition = 0.14
-            iconLearnPosition = 0.21
-            iconRandomPosition = 0.28
-            iconInfoPosition = 0.80
         } else if horizontalSize == .compact && verticalSize == .regular {
-            barWidth = 0.16
-            barHeight = 0.70
-            barPosition = 0.49
             
-            iconWidth = 0.12
-            iconHeight = 0.12
-            iconBarPosition = 0.19
-            iconLearnPosition = 0.27
-            iconRandomPosition = 0.35
-            iconInfoPosition = 0.78
         } else if horizontalSize == .compact && verticalSize == .compact {
-            barWidth = 0.10
-            barHeight = 0.65
-            barPosition = 0.50
             
-            iconWidth = 0.10
-            iconHeight = 0.10
-            iconBarPosition = 0.26
-            iconLearnPosition = 0.38
-            iconRandomPosition = 0.50
-            iconInfoPosition = 0.75
         } else if horizontalSize == .regular && verticalSize == .compact {
-            barWidth = 0.10
-            barHeight = 0.65
-            barPosition = 0.50
             
-            iconWidth = 0.10
-            iconHeight = 0.10
-            iconBarPosition = 0.26
-            iconLearnPosition = 0.38
-            iconRandomPosition = 0.50
-            iconInfoPosition = 0.75
         }
     }
 }
