@@ -22,7 +22,7 @@ struct CMEssayView: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.90, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -32,15 +32,15 @@ struct CMEssayView: View {
                 CMEssayStructureView(essayType: essayType)
                     .position(x: geo.frame(in: .local).minX + geo.size.width * 0.3, y: geo.frame(in: .local).minY + geo.size.height * 0.35)
                 
-                CMEssayFirstBodyView(essayType: essayType)
+                CMEssayBodyView(initialWidth: 240, initialHeight: 300, finalWidth: 340, finalHeight: 450, essayType: essayType, index: 0)
                     .frame(width: geo.size.width * 0.35, height: geo.size.height * 0.34)
                     .position(x: geo.frame(in: .local).minX + geo.size.width * 0.67, y: geo.frame(in: .local).minY + geo.size.height * 0.36)
                 
-                CMEssaySecondBodyView(essayType: essayType)
+                CMEssayBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 220, essayType: essayType, index: 1)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.16)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.65)
                 
-                CMEssayThirdBodyView(essayType: essayType)
+                CMEssayBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 220, essayType: essayType, index: 2)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.16)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.84)
                 
@@ -272,123 +272,119 @@ struct CMEssayStructureView: View {
     }
 }
 
-struct CMEssayFirstBodyView: View {
+struct CMEssayBodyView: View {
+    
+    @State var flipped: Bool = false
+    @State var degrees: Double = 180.0
+    @State var width: CGFloat = 500
+    @State var height: CGFloat = 100
+    
+    let initialWidth: CGFloat
+    let initialHeight: CGFloat
+    let finalWidth: CGFloat
+    let finalHeight: CGFloat
     
     let essayType: NoteType
-    
-    var bodyOne: String {
-        if essayType == .argumentativeEssay {
-            return Information.shared.aEssayInstructions[0]
-        } else if essayType == .expositoryEssay {
-            return Information.shared.eEssayInstructions[0]
-        } else if essayType == .narrativeEssay {
-            return Information.shared.nEssayInstructions[0]
-        } else if essayType == .informativeEssay {
-            return Information.shared.iEssayInstructions[0]
-        } else {
-            return "Unable to get information. Try again."
-        }
-    }
+    let index: Int
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Tip #1")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                Text(bodyOne)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
+            if flipped {
+                CMEssayBack(width: self.$width, height: self.$height, essayType: essayType, index: index)
+            } else {
+                CMEssayFront(width: self.$width, height: self.$height)
             }
-            .padding()
         }
+        .background(Color.gray)
+        .cornerRadius(20)
+        .rotation3DEffect(.degrees(degrees), axis: (x: 0, y: 1, z: 0))
+        .onTapGesture {
+            if self.flipped {
+                self.flipped = false
+                withAnimation {
+                    self.degrees += 180
+                    self.width = initialWidth
+                    self.height = initialHeight
+                }
+            } else {
+                self.flipped = true
+                withAnimation {
+                    self.degrees -= 180
+                    self.width = finalWidth
+                    self.height = finalHeight
+                }
+            }
+        }
+        .onAppear(perform: setDimensions)
+    }
+    
+    func setDimensions() {
+        width = initialWidth
+        height = initialHeight
     }
 }
 
-struct CMEssaySecondBodyView: View {
+struct CMEssayFront: View {
     
-    let essayType: NoteType
-    
-    var bodyTwo: String {
-        if essayType == .argumentativeEssay {
-            return Information.shared.aEssayInstructions[1]
-        } else if essayType == .expositoryEssay {
-            return Information.shared.eEssayInstructions[1]
-        } else if essayType == .narrativeEssay {
-            return Information.shared.nEssayInstructions[1]
-        } else if essayType == .informativeEssay {
-            return Information.shared.iEssayInstructions[1]
-        } else {
-            return "Unable to get information. Try again."
-        }
-    }
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Tip #2")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                Text(bodyTwo)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-            }
-            .padding()
-        }
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Image(systemName: "doc.plaintext")
+                    .font(.largeTitle)
+            )
+            .foregroundColor(.white)
     }
 }
 
-struct CMEssayThirdBodyView: View {
+struct CMEssayBack: View {
     
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
     let essayType: NoteType
+    let index: Int
     
-    var bodyTwo: String {
+    var bodyInfo: String {
         if essayType == .argumentativeEssay {
-            return Information.shared.aEssayInstructions[2]
+            return Information.shared.aEssayInstructions[index]
         } else if essayType == .expositoryEssay {
-            return Information.shared.eEssayInstructions[2]
+            return Information.shared.eEssayInstructions[index]
         } else if essayType == .narrativeEssay {
-            return Information.shared.nEssayInstructions[2]
+            return Information.shared.nEssayInstructions[index]
         } else if essayType == .informativeEssay {
-            return Information.shared.iEssayInstructions[2]
+            return Information.shared.iEssayInstructions[index]
         } else {
             return "Unable to get information. Try again."
         }
     }
     
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Tip #3")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                Text(bodyTwo)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-            }
-            .padding()
+    var title: String {
+        if index == 0 {
+            return "Tip #1:"
+        } else if index == 1 {
+            return "Tip #2:"
+        } else if index == 2 {
+            return "Tip #3:"
+        } else {
+            return ""
         }
+    }
+    
+    
+    var body: some View {
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Text("\(title)\n\n\(bodyInfo)")
+                    .padding(20)
+                    .font(.title)
+                    .foregroundColor(.white)
+            )
     }
 }
 
