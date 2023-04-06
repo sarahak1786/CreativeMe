@@ -10,7 +10,6 @@ import SwiftUI
 struct CMPoemView: View {
     var body: some View {
         CMPoemTutorialSlideOne()
-        //Add place to tap next
     }
 }
 
@@ -18,6 +17,7 @@ struct CMPoemTutorialSlideOne: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
+    @State private var showSecondSlide = false
     
     var body: some View {
         ZStack {
@@ -28,7 +28,7 @@ struct CMPoemTutorialSlideOne: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.90, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -40,15 +40,15 @@ struct CMPoemTutorialSlideOne: View {
                 CMPoemStructureView()
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY - geo.size.height * 0.26)
 
-                CMPoemFirstStepView(step: "First")
+                CMPoemBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 200, index: 0)
                     .frame(width: geo.size.width * 0.65, height: geo.size.height * 0.17)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.45)
 
-                CMPoemSecondStepView(step: "First")
+                CMPoemBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 200, index: 1)
                     .frame(width: geo.size.width * 0.65, height: geo.size.height * 0.17)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.64)
 
-                CMPoemThirdStepView(step: "First")
+                CMPoemBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 200, index: 2)
                     .frame(width: geo.size.width * 0.65, height: geo.size.height * 0.17)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.83)
                 
@@ -59,8 +59,18 @@ struct CMPoemTutorialSlideOne: View {
                         .font(.title)
                 }
                 .position(x: geo.frame(in: .local).minX + geo.size.width * 0.2, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
+                
+                Button {
+                    showSecondSlide.toggle()
+                } label: {
+                    Label("", systemImage: "arrow.forward.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.mainPink)
+                }
+                .position(x: geo.frame(in: .local).minX + geo.size.width * 0.8, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
             }
         }
+        .fullScreenCover(isPresented: $showSecondSlide, content: CMPoemTutorialSlideTwo.init)
     }
 }
 
@@ -78,7 +88,7 @@ struct CMPoemTutorialSlideTwo: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.90, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -90,15 +100,15 @@ struct CMPoemTutorialSlideTwo: View {
                 Image("MeterExample")
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.2)
 
-                CMPoemFirstStepView(step: "Second")
+                CMPoemBodyView(initialWidth: 500, initialHeight: 125, finalWidth: 700, finalHeight: 250, index: 3)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.20)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.37)
 
-                CMPoemSecondStepView(step: "Second")
+                CMPoemBodyView(initialWidth: 500, initialHeight: 125, finalWidth: 700, finalHeight: 250, index: 4)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.20)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.59)
 
-                CMPoemThirdStepView(step: "Second")
+                CMPoemBodyView(initialWidth: 500, initialHeight: 125, finalWidth: 700, finalHeight: 250, index: 5)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.20)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.81)
                 
@@ -162,111 +172,102 @@ struct CMPoemStructureView: View {
     }
 }
 
-struct CMPoemFirstStepView: View {
+struct CMPoemBodyView: View {
     
-    let step: String
+    @State var flipped: Bool = false
+    @State var degrees: Double = 180.0
+    @State var width: CGFloat = 500
+    @State var height: CGFloat = 100
+    
+    let initialWidth: CGFloat
+    let initialHeight: CGFloat
+    let finalWidth: CGFloat
+    let finalHeight: CGFloat
+    
+    let index: Int
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Step #1")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                if step == "First" {
-                    Text(Information.shared.poemInstructions[0])
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                } else if step == "Second" {
-                    Text(Information.shared.poemInstructions[3])
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                } else {
-                    Text("Something as gone wrong. Please try again.")
+            if flipped {
+                CMPoemBack(width: self.$width, height: self.$height, index: index)
+            } else {
+                CMPoemFront(width: self.$width, height: self.$height)
+            }
+        }
+        .background(Color.gray)
+        .cornerRadius(20)
+        .rotation3DEffect(.degrees(degrees), axis: (x: 0, y: 1, z: 0))
+        .onTapGesture {
+            if self.flipped {
+                self.flipped = false
+                withAnimation {
+                    self.degrees += 180
+                    self.width = initialWidth
+                    self.height = initialHeight
+                }
+            } else {
+                self.flipped = true
+                withAnimation {
+                    self.degrees -= 180
+                    self.width = finalWidth
+                    self.height = finalHeight
                 }
             }
-            .padding()
         }
+        .onAppear(perform: setDimensions)
+    }
+    
+    func setDimensions() {
+        width = initialWidth
+        height = initialHeight
     }
 }
 
-struct CMPoemSecondStepView: View {
+struct CMPoemFront: View {
     
-    let step: String
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Step #2")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                if step == "First" {
-                    Text(Information.shared.poemInstructions[1])
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                } else if step == "Second" {
-                    Text(Information.shared.poemInstructions[4])
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                } else {
-                    Text("Something as gone wrong. Please try again.")
-                }
-            }
-            .padding()
-        }
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Image(systemName: "doc.plaintext")
+                    .font(.largeTitle)
+            )
+            .foregroundColor(.white)
     }
 }
 
-struct CMPoemThirdStepView: View {
+struct CMPoemBack: View {
     
-    let step: String
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
+    let index: Int
+    
+    var title: String {
+        if index == 0 || index == 3 {
+            return "Step #1:"
+        } else if index == 1 || index == 4 {
+            return "Step #2:"
+        } else if index == 2 || index == 5 {
+            return "Step #3:"
+        } else {
+            return ""
+        }
+    }
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Step #3")
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Text("\(title)\n\n\(Information.shared.poemInstructions[index])")
+                    .padding(20)
                     .font(.title)
                     .foregroundColor(.white)
-                    .padding()
-                
-                if step == "First" {
-                    Text(Information.shared.poemInstructions[2])
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                    
-                } else if step == "Second" {
-                    Text(Information.shared.poemInstructions[5])
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding()
-                } else {
-                    Text("Something as gone wrong. Please try again.")
-                }
-            }
-            .padding()
-        }
+            )
     }
 }
 
