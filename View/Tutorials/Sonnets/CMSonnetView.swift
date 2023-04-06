@@ -11,7 +11,7 @@ struct CMSonnetView: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
-    let sonnetType: NoteType 
+    let sonnetType: NoteType
     
     var body: some View {
         ZStack {
@@ -22,7 +22,7 @@ struct CMSonnetView: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.90, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -30,19 +30,19 @@ struct CMSonnetView: View {
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
                 
                 CMSonnetStructureView(sonnetType: sonnetType)
-                    .position(x: geo.frame(in: .local).minX + geo.size.height * 0.2, y: geo.frame(in: .local).midY)
+                    .position(x: geo.frame(in: .local).minX + geo.size.height * 0.23, y: geo.frame(in: .local).midY)
                 
                 CMSonnetImageView(sonnetType: sonnetType)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.22)
                 
-                CMSonnetFirstBodyView(sonnetType: sonnetType)
-                    .frame(width: geo.size.width * 0.35, height: geo.size.height * 0.35)
+                CMSonnetBodyView(initialWidth: 200, initialHeight: 300, finalWidth: 300, finalHeight: 400, sonnetType: sonnetType, index: 0)
+                    .frame(width: geo.size.width * 0.37, height: geo.size.height * 0.35)
                     .position(x: geo.frame(in: .local).midX + geo.size.height * 0.1, y: geo.frame(in: .local).minY + geo.size.height * 0.5)
                 
-                CMSonnetSecondBodyView(sonnetType: sonnetType)
+                CMSonnetBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 600, finalHeight: 200, sonnetType: sonnetType, index: 1)
                     .frame(width: geo.size.width * 0.60, height: geo.size.height * 0.15)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.height * 0.30)
-                
+                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.height * 0.28)
+
                 Button {
                     dismiss()
                 } label: {
@@ -308,65 +308,102 @@ struct CMSonnetStructureView: View {
     }
 }
 
-struct CMSonnetFirstBodyView: View {
+struct CMSonnetBodyView: View {
+    
+    @State var flipped: Bool = false
+    @State var degrees: Double = 180.0
+    @State var width: CGFloat = 500
+    @State var height: CGFloat = 100
+    
+    let initialWidth: CGFloat
+    let initialHeight: CGFloat
+    let finalWidth: CGFloat
+    let finalHeight: CGFloat
     
     let sonnetType: NoteType
-    
-    var bodyOne: String {
-        if sonnetType == .shakespeareanSonnet {
-            return Information.shared.shakeSonnetInstructions[0]
-        } else if sonnetType == .spenserianSonnet {
-            return Information.shared.spenSonnetInstructions[0]
-        } else {
-            return "Unable to get information. Try again."
-        }
-    }
+    let index: Int
     
     var body: some View {
         ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text(bodyOne)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
+            if flipped {
+                CMSonnetBack(width: self.$width, height: self.$height, sonnetType: sonnetType, index: index)
+            } else {
+                CMSonnetFront(width: self.$width, height: self.$height)
             }
-            .padding()
         }
+        .background(Color.gray)
+        .cornerRadius(20)
+        .rotation3DEffect(.degrees(degrees), axis: (x: 0, y: 1, z: 0))
+        .onTapGesture {
+            if self.flipped {
+                self.flipped = false
+                withAnimation {
+                    self.degrees += 180
+                    self.width = initialWidth
+                    self.height = initialHeight
+                }
+            } else {
+                self.flipped = true
+                withAnimation {
+                    self.degrees -= 180
+                    self.width = finalWidth
+                    self.height = finalHeight
+                }
+            }
+        }
+        .onAppear(perform: setDimensions)
+    }
+    
+    func setDimensions() {
+        width = initialWidth
+        height = initialHeight
     }
 }
 
-struct CMSonnetSecondBodyView: View {
+struct CMSonnetFront: View {
     
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
+    
+    var body: some View {
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Image(systemName: "doc.plaintext")
+                    .font(.largeTitle)
+            )
+            .foregroundColor(.white)
+    }
+}
+
+struct CMSonnetBack: View {
+    
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
     let sonnetType: NoteType
+    let index: Int
     
-    var bodyTwo: String {
+    var bodyInfo: String {
         if sonnetType == .shakespeareanSonnet {
-            return Information.shared.shakeSonnetInstructions[1]
+            return Information.shared.shakeSonnetInstructions[index]
         } else if sonnetType == .spenserianSonnet {
-            return Information.shared.spenSonnetInstructions[1]
+            return Information.shared.spenSonnetInstructions[index]
         } else {
             return "Unable to get information. Try again."
         }
     }
     
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text(bodyTwo)
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Text(bodyInfo)
+                    .padding(20)
                     .font(.title)
                     .foregroundColor(.white)
-                    .padding()
-            }
-            .padding()
-        }
+            )
     }
 }
 
