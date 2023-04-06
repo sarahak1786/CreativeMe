@@ -28,7 +28,7 @@ struct CMWelcomeCard: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.75)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -41,6 +41,9 @@ struct CMWelcomeCard: View {
 }
 
 struct CMWelcomeInformation: View {
+    
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         VStack {
             Text("Welcome!")
@@ -95,7 +98,7 @@ struct CMWelcomeInformation: View {
             
             VStack {
                 Button("Let's get started!") {
-                    //Add functionality here!
+                    dismiss()
                 }
                 .font(.title.bold())
                 .foregroundColor(.white)
