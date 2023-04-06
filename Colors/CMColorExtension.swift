@@ -23,4 +23,6 @@ extension Color {
     static let blueButton = Color("BlueButton")
     
     static let backgroundGradient =  LinearGradient(gradient: Gradient(colors: [mainBlue, mainPink]), startPoint: .top, endPoint: .bottom)
+    
+    static let reverseGradient =  LinearGradient(gradient: Gradient(colors: [mainPink, mainBlue]), startPoint: .top, endPoint: .bottom)
 }
