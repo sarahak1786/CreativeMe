@@ -8,12 +8,25 @@
 import SwiftUI
 
 struct CMAboutView: View {
+    
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         ZStack {
             Color.backgroundGradient
                 .ignoresSafeArea()
             
             CMAboutCard()
+            
+            GeometryReader { geo in
+                Button {
+                    dismiss()
+                } label: {
+                    Label("", systemImage: "arrow.left")
+                        .font(.title)
+                }
+                .position(x: geo.frame(in: .local).minX + geo.size.width * 0.2, y: geo.frame(in: .local).minY + geo.size.height * 0.18)
+            }
         }
     }
 }
@@ -28,7 +41,7 @@ struct CMAboutCard: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.75)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 

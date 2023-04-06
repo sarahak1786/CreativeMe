@@ -16,6 +16,7 @@ import SwiftUI
 struct CMLearnView: View {
     
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         ZStack {
@@ -26,7 +27,7 @@ struct CMLearnView: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -47,7 +48,7 @@ struct CMLearnView: View {
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.width * 0.3)
                 
                 Button("Back to Home") {
-                    //Add functionality here!
+                    dismiss()
                 }
                 .font(.title.bold())
                 .foregroundColor(.white)
@@ -115,7 +116,7 @@ struct CMTutorialSlider: View {
                                 .foregroundColor(card % 2 == 0 ? .mainBlue : .mainPink)
                                 .frame(width: 600, height: 500, alignment: .center)
                                 .cornerRadius(16)
-                                .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 0)
+//                                .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 0)
                                 .rotation3DEffect(Angle(degrees: (Double(geo.frame(in: .global).minX) - 210) / -20), axis: (x: 0, y: 1.0, z: 0))
                                 .padding(.top, 20)
                             
@@ -123,7 +124,7 @@ struct CMTutorialSlider: View {
                                 cards[card]
                                     .frame(width: 600, height: 600, alignment: .center)
                                     .cornerRadius(16)
-                                    .shadow(color: Color.black.opacity(0.2), radius: 20, x: 0, y: 0)
+//                                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 0)
                                     .rotation3DEffect(Angle(degrees: (Double(geo.frame(in: .global).minX) - 210) / -20), axis: (x: 0, y: 1.0, z: 0))
                             
                                 Button("See More!") {
@@ -165,7 +166,7 @@ struct CMTutorialSlider: View {
         .fullScreenCover(isPresented: $play, content: CMPlayView.init)
         .fullScreenCover(isPresented: $song, content: CMSongView.init)
         .fullScreenCover(isPresented: $speech, content: CMSpeechView.init)
-        .fullScreenCover(isPresented: $prompt, content: CMHomeView.init)
+        .fullScreenCover(isPresented: $prompt, content: CMPromptView.init)
     }
     
     func getDestination(for index: Int) {
@@ -215,6 +216,7 @@ struct CMCardView: View {
                 .fontWeight(.medium)
                 .foregroundColor(.primary)
                 .padding(.top)
+                .colorScheme(.light)
             
             Image(imagePreview)
                 .resizable()
@@ -226,10 +228,11 @@ struct CMCardView: View {
                 .font(.title)
                 .foregroundColor(.primary)
                 .padding()
+                .colorScheme(.light)
         }
         .background(.white)
         .cornerRadius(20)
-        .shadow(radius: 10)
+//        .shadow(radius: 5)
         .padding()
     }
 }

@@ -12,6 +12,7 @@ struct CMPromptView: View {
     @State private var orientation = UIDeviceOrientation.unknown
     @Environment(\.sizeCategory) var sizeCategory
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         ZStack {
@@ -22,13 +23,23 @@ struct CMPromptView: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.60)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
             
                 CMPromptGenerator()
                     .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.60)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
+                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY - geo.size.height * 0.06)
+                
+                Button("Back to Home") {
+                    dismiss()
+                }
+                .font(.title.bold())
+                .foregroundColor(.white)
+                .frame(width: geo.size.width * 0.60, height: 70)
+                .background(Color.mainBlue)
+                .cornerRadius(20)
+                .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.width * 0.26)
             }
         }
     }
@@ -36,7 +47,7 @@ struct CMPromptView: View {
 
 struct CMPromptGenerator: View {
     
-    @State private var type = ""
+    @State private var type = "Poem"
     let types = ["Poem", "Haiku", "Argumentative Essay", "Expository Essay", "Narrative Essay", "Informative Essay", "Shakespearean Sonnet", "Spenserian Sonnet", "Play", "Song", "Speech"]
     @State private var prompt: String = "Select a type and press the button below."
     
