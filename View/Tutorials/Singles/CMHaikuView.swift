@@ -21,7 +21,7 @@ struct CMHaikuView: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-                    .shadow(radius: 20)
+//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.90, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
@@ -31,19 +31,19 @@ struct CMHaikuView: View {
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
                 
                 CMHaikuStructureView()
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY - geo.size.height * 0.26)
+                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY - geo.size.height * 0.27)
                 
-                CMHaikuFirstStepView()
+                CMHaikuBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 200, index: 0)
                     .frame(width: geo.size.width * 0.65, height: geo.size.height * 0.17)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.40)
+                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.42)
                 
-                CMHaikuSecondStepView()
+                CMHaikuBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 200, index: 1)
                     .frame(width: geo.size.width * 0.65, height: geo.size.height * 0.17)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.59)
+                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.61)
                 
-                CMHaikuThirdStepView()
+                CMHaikuBodyView(initialWidth: 500, initialHeight: 100, finalWidth: 700, finalHeight: 200, index: 2)
                     .frame(width: geo.size.width * 0.65, height: geo.size.height * 0.17)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.78)
+                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.80)
                 
                 Button {
                     dismiss()
@@ -90,72 +90,102 @@ struct CMHaikuStructureView: View {
     }
 }
 
-struct CMHaikuFirstStepView: View {
+struct CMHaikuBodyView: View {
+    
+    @State var flipped: Bool = false
+    @State var degrees: Double = 180.0
+    @State var width: CGFloat = 500
+    @State var height: CGFloat = 100
+    
+    let initialWidth: CGFloat
+    let initialHeight: CGFloat
+    let finalWidth: CGFloat
+    let finalHeight: CGFloat
+    
+    let index: Int
+    
     var body: some View {
         ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Step #1")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                Text(Information.shared.haikuInstructions[0])
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
+            if flipped {
+                CMHaikuBack(width: self.$width, height: self.$height, index: index)
+            } else {
+                CMHaikuFront(width: self.$width, height: self.$height)
             }
-            .padding()
         }
+        .background(Color.gray)
+        .cornerRadius(20)
+        .rotation3DEffect(.degrees(degrees), axis: (x: 0, y: 1, z: 0))
+        .onTapGesture {
+            if self.flipped {
+                self.flipped = false
+                withAnimation {
+                    self.degrees += 180
+                    self.width = initialWidth
+                    self.height = initialHeight
+                }
+            } else {
+                self.flipped = true
+                withAnimation {
+                    self.degrees -= 180
+                    self.width = finalWidth
+                    self.height = finalHeight
+                }
+            }
+        }
+        .onAppear(perform: setDimensions)
+    }
+    
+    func setDimensions() {
+        width = initialWidth
+        height = initialHeight
     }
 }
 
-struct CMHaikuSecondStepView: View {
+struct CMHaikuFront: View {
+    
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
+    
     var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Step #2")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                Text(Information.shared.haikuInstructions[1])
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-            }
-            .padding()
-        }
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Image(systemName: "doc.plaintext")
+                    .font(.largeTitle)
+            )
+            .foregroundColor(.white)
     }
 }
 
-struct CMHaikuThirdStepView: View {
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .foregroundColor(.mainPink)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading) {
-                Text("Step #3")
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-                
-                Text(Information.shared.haikuInstructions[2])
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding()
-            }
-            .padding()
+struct CMHaikuBack: View {
+    
+    @Binding var width: CGFloat
+    @Binding var height: CGFloat
+    let index: Int
+    
+    var title: String {
+        if index == 0 || index == 3 {
+            return "Step #1:"
+        } else if index == 1 || index == 4 {
+            return "Step #2:"
+        } else if index == 2 || index == 5 {
+            return "Step #3:"
+        } else {
+            return ""
         }
+    }
+    
+    var body: some View {
+        Rectangle()
+            .foregroundColor(Color.mainPink)
+            .frame(width: self.width, height: self.height)
+            .overlay(
+                Text("\(title)\n\n\(Information.shared.haikuInstructions[index])")
+                    .padding(20)
+                    .font(.title)
+                    .foregroundColor(.white)
+            )
     }
 }
 
