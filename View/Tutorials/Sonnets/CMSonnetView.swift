@@ -22,7 +22,6 @@ struct CMSonnetView: View {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
-//                    .shadow(radius: 5)
                     .frame(width: geo.size.width * 0.90, height: geo.size.height * 0.95)
                     .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 
