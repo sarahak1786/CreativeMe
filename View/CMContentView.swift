@@ -10,6 +10,7 @@ import SwiftUI
  Room for a beginning animation!
  */
 
+//Fix first run thing
 struct CMContentView: View {
     var body: some View {
         VStack {
