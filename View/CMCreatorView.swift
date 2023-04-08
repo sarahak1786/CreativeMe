@@ -2,7 +2,7 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Sarah Akhtar on 3/19/23.
+//  Created by Sarah Akhtar on 4/2/23.
 //
 
 /*
@@ -17,7 +17,7 @@ import SwiftUI
 
 struct CMCreatorView: View {
     
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.sizeCategory) var sizeCategory
@@ -76,7 +76,7 @@ struct CMCreatorView: View {
                 .ignoresSafeArea()
             
             ///Optimized for any iPad in Portrait
-            if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+            if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                 GeometryReader { geo in
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -166,7 +166,7 @@ struct CMCreatorView: View {
                 }
             
             ///Optimized for any iPad in Landscape
-            } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+            } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                 GeometryReader { geo in
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -235,7 +235,7 @@ struct CMCreatorView: View {
                                 }
                                 .font(.title.bold())
                                 .foregroundColor(.white)
-                                .frame(width: geo.size.width * 0.60, height: 70)
+                                .frame(width: geo.size.width * 0.50, height: 55)
                                 .contentShape(Rectangle())
                                 .background(Color.mainPink)
                                 .cornerRadius(20)
@@ -246,7 +246,7 @@ struct CMCreatorView: View {
                                 }
                                 .font(.title)
                                 .foregroundColor(.white)
-                                .frame(width: geo.size.width * 0.30, height: 70)
+                                .frame(width: geo.size.width * 0.20, height: 35)
                                 .contentShape(Rectangle())
                                 .background(Color.purpleRandom)
                                 .cornerRadius(20)
@@ -455,96 +455,100 @@ struct CMCreatorView: View {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                         .cornerRadius(20)
-                        .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.95)
+                        .frame(width: geo.size.width * 0.95, height: geo.size.height * 0.9)
                         .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                        ZStack {
-                            Text("Getting Started")
-                                .font(.largeTitle)
-                                .position(x: geo.frame(in: .local).midX, y: geo.size.height * 0.13)
+                    
+                    ZStack {
+                        Text("Getting Started")
+                            .font(.title)
+                            .fontWeight(.thin)
+                            .position(x: geo.frame(in: .local).midX + 180, y: geo.size.height * 0.20)
+                        
+                        Rectangle()
+                            .frame(width: geo.size.width * 0.33, height: 1)
+                            .position(x: geo.frame(in: .local).midX + 180, y: geo.size.height * 0.27)
+                        
+                        ZStack(alignment: .leading) {
+                            Text("\"Where the world meets ingenuity\"")
+                                .font(.title3.bold())
+                                .frame(width: 300, height: 100)
+                                .position(x: geo.frame(in: .local).midX + 180, y: geo.size.height * 0.38)
                             
-                            Rectangle()
-                                .frame(width: geo.size.width * 0.50, height: 1)
-                                .position(x: geo.frame(in: .local).midX, y: geo.size.height * 0.17)
-                            
-                            ZStack(alignment: .leading) {
-                                Text("\"Where the world meets ingenuity\"")
-                                    .font(.title2.bold())
-                                    .position(x: geo.frame(in: .local).midX, y: geo.size.height * 0.22)
-                                
-                                Text("- Anonymous")
-                                    .font(.title2)
-                                    .position(x: geo.frame(in: .local).midX, y: geo.size.height * 0.245)
-                            }
-                            
-                            GeometryReader { geo in
+                            Text("- Anonymous")
+                                .font(.headline)
+                                .fontWeight(.medium)
+                                .position(x: geo.frame(in: .local).midX + 180, y: geo.size.height * 0.50)
+                        }
+                        
+                        GeometryReader { geo in
+                            VStack(alignment: .center) {
                                 VStack(alignment: .center) {
-                                    VStack(alignment: .center) {
-                                        Text("NAME OF WORK")
-                                    }
-                                    
-                                    TextField("Your creative work...", text: $title)
-                                        .font(.title)
-                                        .frame(width: geo.size.width * 0.5, height: geo.size.height * 0.02)
-                                        .padding(20)
-                                        .background(Color.mainBlue)
-                                        .foregroundColor(.white)
-                                        .cornerRadius(20)
-                                    
-                                    Text("TYPE OF WRITING")
-                                        .padding(.top)
-                                    
-                                    Picker("Type", selection: $selectedType) {
-                                        ForEach(types, id: \.self) {
-                                            Text($0)
-                                        }
-                                    }
+                                    Text("NAME OF WORK")
+                                        .font(.caption)
+                                }
+                                
+                                TextField("Your creative work...", text: $title)
+                                    .font(.headline)
+                                    .frame(width: geo.size.width * 0.35, height: geo.size.height * 0.02)
+                                    .padding(20)
                                     .background(Color.mainBlue)
+                                    .foregroundColor(.white)
                                     .cornerRadius(20)
+                                
+                                Text("TYPE OF WRITING")
+                                    .font(.caption)
+                                    .padding(.top)
+                                
+                                Picker("Type", selection: $selectedType) {
+                                    ForEach(types, id: \.self) {
+                                        Text($0)
+                                    }
+                                }
+                                .background(Color.mainBlue)
+                                .cornerRadius(20)
+                                .padding(.bottom)
+                                .frame(width: geo.size.width * 0.40, height: geo.size.height * 0.3)
+                                .pickerStyle(.wheel)
+                                
+                                Toggle("ENABLE TUTORIAL", isOn: $showTutorial)
+                                    .font(.caption)
                                     .padding(.bottom)
-                                    .frame(width: geo.size.width * 0.54, height: geo.size.height * 0.15)
-                                    .pickerStyle(.wheel)
-                                    
-                                    Toggle("ENABLE TUTORIAL", isOn: $showTutorial)
-                                        .padding(.bottom)
-                                        .frame(width: geo.size.width * 0.54, height: geo.size.height * 0.05)
-                                        .tint(.mainBlue)
-                                        .disabled(disableOther == true)
-                                }
-                                .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                                
-                                Button("Create New Work") {
-                                    let note = Note(title: title, body: "Let your mind wander.", type: type, favorites: false)
-                                    allNotes.add(note)
-                                    showEditor.toggle()
-                                }
-                                .font(.title.bold())
-                                .foregroundColor(.white)
-                                .frame(width: geo.size.width * 0.60, height: 70)
-                                .contentShape(Rectangle())
-                                .background(Color.mainPink)
-                                .cornerRadius(20)
-                                .position(x: geo.frame(in: .local).midX, y: geo.size.height * 0.77)
-                                
-                                Button("Cancel") {
-                                    dismiss()
-                                }
-                                .font(.title)
-                                .foregroundColor(.white)
-                                .frame(width: geo.size.width * 0.30, height: 70)
-                                .contentShape(Rectangle())
-                                .background(Color.purpleRandom)
-                                .cornerRadius(20)
-                                .position(x: geo.frame(in: .local).midX, y: geo.size.height * 0.85)
+                                    .frame(width: geo.size.width * 0.40, height: geo.size.height * 0.1)
+                                    .tint(.mainBlue)
+                                    .disabled(disableOther == true)
+                            }
+                            .position(x: geo.frame(in: .local).midX - 140, y: geo.frame(in: .local).midY + 12)
+                            
+                            Button("Create New Work") {
+                                let note = Note(title: title, body: "Let your mind wander.", type: type, favorites: false)
+                                allNotes.add(note)
+                                showEditor.toggle()
+                            }
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .frame(width: geo.size.width * 0.30, height: 40)
+                            .contentShape(Rectangle())
+                            .background(Color.mainPink)
+                            .cornerRadius(20)
+                            .position(x: geo.frame(in: .local).midX + 180, y: geo.size.height * 0.65)
+                            
+                            Button("Cancel") {
+                                dismiss()
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(width: geo.size.width * 0.25, height: 30)
+                            .contentShape(Rectangle())
+                            .background(Color.purpleRandom)
+                            .cornerRadius(20)
+                            .position(x: geo.frame(in: .local).midX + 180, y: geo.size.height * 0.8)
                         }
                     }
                 }
-                
             }
         }
         .ignoresSafeArea(.keyboard)
-        .onRotate { newOrientation in
-            orientation = newOrientation
-        }
+        .environmentObject(OrientationInfo())
         .fullScreenCover(isPresented: $showEditor) {
             CMEditorView(note: note, tutorial: showTutorial)
         }
@@ -554,22 +558,6 @@ struct CMCreatorView: View {
 struct CMCreatorView_Previews: PreviewProvider {
     static var previews: some View {
         CMCreatorView()
+            .environmentObject(OrientationInfo())
     }
 }
-
-/*
- ///Optimized for any iPad in Portrait
- if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
- 
- ///Optimized for any iPad in Landscape
- } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
- 
- ///Optimized for any iPhone in Portrait
- } else if horizontalSize == .compact && verticalSize == .regular {
- 
- ///Optimized for any iPhone in Landscape
- } else if horizontalSize == .compact && verticalSize == .compact {
- 
- ///Optimized for any iPhone Pro/Plus Landscape
- } else if horizontalSize == .regular && verticalSize == .compact {
- */
