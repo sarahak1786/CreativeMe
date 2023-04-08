@@ -2,10 +2,8 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Sarah Akhtar on 4/1/23.
+//  Created by Sarah Akhtar on 4/2/23.
 //
-
-//ISSUE: Device orientation does not update when device changes orientation
 
 import SwiftUI
 
@@ -13,7 +11,7 @@ import SwiftUI
 struct CMHomeView: View {
     
     ///Variables for orientation, color scheme, and intializes user data
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
@@ -28,7 +26,7 @@ struct CMHomeView: View {
                 GeometryReader { geo in
                         
                     ///Optimized for any iPad in Portrait
-                    if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+                    if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                         Image(colorScheme == .dark ? "CreativeMeDark" : "CreativeMeLogo")
                             .padding()
                             .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
@@ -49,7 +47,7 @@ struct CMHomeView: View {
                             .position(x: geo.frame(in: .local).midX * 0.77, y: geo.frame(in: .local).minY + geo.size.height * 0.64)
                         
                     ///Optimized for any iPad in Landscape
-                    } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+                    } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                         Image(colorScheme == .dark ? "CreativeMeDark" : "CreativeMeLogo")
                             .padding()
                             .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
@@ -113,30 +111,29 @@ struct CMHomeView: View {
                     ///Optimized for any iPhone Pro/Plus Landscape
                     } else if horizontalSize == .regular && verticalSize == .compact {
                         Image(colorScheme == .dark ? "CreativeMeDark" : "CreativeMeLogo")
-                            .padding()
-                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.1)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 270, height: 100)
+                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).minY + geo.size.height * 0.15)
                         
                         CMNoteView()
                             .contentShape(Capsule())
-                            .position(x: geo.frame(in: .local).midX * 0.75, y: geo.frame(in: .local).minY + geo.size.height * 0.80)
+                            .position(x: geo.frame(in: .local).maxX * 0.77, y: geo.frame(in: .local).midY + geo.size.height * 0.10)
                         
                         CMInfoBarView()
-                            .position(x: geo.frame(in: .local).midX * 1.6, y: geo.frame(in: .local).midY + geo.size.height * 0.05)
+                            .position(x: geo.frame(in: .local).midX * 0.55, y: geo.frame(in: .local).midY + geo.size.height * 0.35)
                         
                         CMAddNote()
-                            .position(x: geo.frame(in: .local).midX * 0.85, y: geo.frame(in: .local).minY + geo.size.height * 0.40)
+                            .position(x: geo.frame(in: .local).midX * 0.55, y: geo.frame(in: .local).minY + geo.size.height * 0.46)
                         
                         Rectangle()
-                            .frame(width: geo.size.width * 0.50, height: 1)
+                            .frame(width: geo.size.width * 0.35, height: 1)
                             .foregroundColor(.white)
-                            .position(x: geo.frame(in: .local).midX * 0.77, y: geo.frame(in: .local).minY + geo.size.height * 0.63)
+                            .position(x: geo.frame(in: .local).midX * 0.55, y: geo.frame(in: .local).minY + geo.size.height * 0.7)
                     }
                 }
             }
-            ///Detects Device Orientation Change
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
+            .environmentObject(OrientationInfo())
         }
         .environmentObject(allNotes)
     }
@@ -146,7 +143,7 @@ struct CMHomeView: View {
 struct CMAddNote: View {
     
     ///Variables for orientation, color scheme, and showing CMEditorView
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
@@ -155,7 +152,7 @@ struct CMAddNote: View {
     var body: some View {
         ZStack {
             ///Optimized for any iPad in Portrait
-            if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+            if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
@@ -182,7 +179,7 @@ struct CMAddNote: View {
                 }
                 
             ///Optimized for any iPad in Landscape
-            } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+            } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                 Rectangle()
                     .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                     .cornerRadius(20)
@@ -264,12 +261,32 @@ struct CMAddNote: View {
                 
             ///Optimized for any iPhone Pro/Plus Landscape
             } else if horizontalSize == .regular && verticalSize == .compact {
+                Rectangle()
+                    .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
+                    .cornerRadius(20)
+                    .frame(width: 300, height: 130)
+                
+                Button() {
+                    showCreatorView.toggle()
+                } label: {
+                    VStack {
+                        Text("+")
+                            .foregroundColor(.primary)
+                            .font(.system(size: 60))
+                            .fontWeight(.thin)
+                        Text("New Note")
+                            .foregroundColor(.primary)
+                            .font(.system(size: 27))
+                            .fontWeight(.thin)
+                    }
+                }
+                .frame(width: 300, height: 130)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    showCreatorView.toggle()
+                }
                 
             }
-        }
-        ///Detects Device Orientation Change
-        .onRotate { newOrientation in
-            orientation = newOrientation
         }
         ///Reveals CMCreatorView: Allows user to create new note
         .fullScreenCover(isPresented: $showCreatorView, content: CMCreatorView.init)
@@ -280,7 +297,7 @@ struct CMAddNote: View {
 struct CMNoteView: View {
     
     ///Variables for orientation, color scheme, exit screen, and reads user data
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
@@ -373,7 +390,7 @@ struct CMNoteView: View {
                 ForEach(0..<filteredNotes.count, id: \.self) { index in
                         
                     ///Optimized for any iPad in Portrait
-                    if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+                    if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                         ZStack {
                             Rectangle()
                                 .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -421,7 +438,7 @@ struct CMNoteView: View {
                         }
                         
                     ///Optimized for any iPad in Landscape
-                    } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+                    } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                         ZStack {
                             Rectangle()
                                 .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -566,20 +583,60 @@ struct CMNoteView: View {
                         
                     ///Optimized for any iPhone Pro/Plus Landscape
                     } else if horizontalSize == .regular && verticalSize == .compact {
-                        
+                        ZStack {
+                            Rectangle()
+                                .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
+                                .cornerRadius(20)
+                                .frame(width: 310, height: 170)
+                            
+                            VStack(alignment: .leading) {
+                                VStack(alignment: .leading) {
+                                    Text(filteredNotes[index].title)
+                                        .font(.title2)
+                                        .fontWeight(.thin)
+                                        .italic()
+                                        .padding(.leading)
+                                    
+                                    Text(convertTypeToString(filteredNotes[index]))
+                                        .font(.headline.bold())
+                                        .padding(.leading)
+                                }
+                                .padding()
+                                
+                                Spacer()
+                                
+                                HStack {
+                                    Button(action: {
+                                        selectItem(at: index)
+                                    }, label: {
+                                        Text("View   >")
+                                    })
+                                    .buttonStyle(.bordered)
+                                    .cornerRadius(20)
+                                    .foregroundColor(.black)
+                                    .padding()
+                                    
+                                    Spacer()
+                                    
+                                    Text(convertDatetoString(filteredNotes[index]))
+                                        .font(.title3)
+                                        .fontWeight(.thin)
+                                        .padding()
+                                }
+                                .padding(5)
+                            }
+                            .padding(5)
+                            .frame(width: 310, height: 170)
+                        }
                     }
                 }
-            }
-            ///Detects Device Orientation Change
-            .onRotate { newOrientation in
-                orientation = newOrientation
             }
             .tabViewStyle(PageTabViewStyle())
             .clipShape(RoundedRectangle(cornerRadius: 5))
             .padding()
                 
             ///Optimized for any iPad in Portrait
-            if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+            if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                 VStack {
                     Menu {
                         Button("Favorites") { filter = .favorites}
@@ -613,7 +670,7 @@ struct CMNoteView: View {
                     .offset(y: 180)
                 
             ///Optimized for any iPad in Landscape
-            } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+            } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                 VStack {
                     Menu {
                         Button("Favorites") { filter = .favorites}
@@ -716,7 +773,37 @@ struct CMNoteView: View {
                
             ///Optimized for any iPhone Pro/Plus Landscape
             } else if horizontalSize == .regular && verticalSize == .compact {
+                VStack {
+                    Menu {
+                        Button("Favorites") { filter = .favorites}
+                        Button("Alphabetical") { filter = .alphabetical}
+                        Menu("Type") {
+                            Button("Other") { filter = .type; selectedType = "Other" }
+                            Button("Speech") { filter = .type; selectedType = "Speech" }
+                            Button("Song") { filter = .type; selectedType = "Song" }
+                            Button("Play") { filter = .type; selectedType = "Play" }
+                            Button("Spenserian Sonnet") { filter = .type; selectedType = "Spenserian Sonnet" }
+                            Button("Shakespearean Sonnet") { filter = .type; selectedType = "Shakespearean Sonnet" }
+                            Menu("Essays") {
+                                Button("Informative Essay") { filter = .type; selectedType = "Informative Essay" }
+                                Button("Narrative Essay") { filter = .type; selectedType = "Narrative Essay" }
+                                Button("Expository Essay") { filter = .type; selectedType = "Expository Essay" }
+                                Button("Argumentative Essay") { filter = .type; selectedType = "Argumentative Essay" }
+                            }
+                            Button("Haiku") { filter = .type; selectedType = "Haiku" }
+                            Button("Poem") { filter = .type; selectedType = "Poem" }
+                        }
+                    } label: {
+                        Label("", systemImage: "ellipsis.circle")
+                            .font(.largeTitle)
+                            .foregroundColor(.white)
+                            .frame(width: 80, height: 30)
+                    }
+                }
+                .offset(x: 130, y: -130)
                 
+                controls
+                    .offset(y: 110)
             }
         }
         .frame(width: 650, height: 400)
@@ -727,15 +814,11 @@ struct CMNoteView: View {
         .onAppear {
             index = filteredNotes.count
         }
-        ///Detects Device Orientation Change
-        .onRotate { newOrientation in
-            orientation = newOrientation
-        }
         
         if filteredNotes.isEmpty {
                 
             ///Optimized for any iPad in Portrait
-            if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+            if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                 ZStack {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -748,13 +831,10 @@ struct CMNoteView: View {
                         .fontWeight(.thin)
                         .foregroundColor(.primary)
                 }
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
-            .padding()
+                .padding()
               
             ///Optimized for any iPad in Landscape
-            } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+            } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                 ZStack {
                     Rectangle()
                         .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -767,10 +847,7 @@ struct CMNoteView: View {
                         .fontWeight(.thin)
                         .foregroundColor(.primary)
                 }
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
-            .padding()
+                .padding()
                 
             ///Optimized for any iPhone in Portrait
             } else if horizontalSize == .compact && verticalSize == .regular {
@@ -786,10 +863,7 @@ struct CMNoteView: View {
                         .fontWeight(.thin)
                         .foregroundColor(.primary)
                 }
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
-            .padding()
+                .padding()
                 
             ///Optimized for any iPhone in Landscape
             } else if horizontalSize == .compact && verticalSize == .compact {
@@ -805,14 +879,23 @@ struct CMNoteView: View {
                         .fontWeight(.thin)
                         .foregroundColor(.primary)
                 }
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
-            .padding()
+                .padding()
                 
             ///Optimized for any iPhone Pro/Plus Landscape
             } else if horizontalSize == .regular && verticalSize == .compact {
-                
+                ZStack {
+                    Rectangle()
+                        .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
+                        .opacity(0.8)
+                        .cornerRadius(20)
+                        .frame(width: 310, height: 50)
+                    
+                    Text("No notes created of this type.")
+                        .font(.title3)
+                        .fontWeight(.thin)
+                        .foregroundColor(.primary)
+                }
+                .padding()
             }
         }
     }
@@ -879,7 +962,7 @@ struct CMNoteView: View {
 struct CMInfoBarView: View {
     
     ///Variables for orientation and color scheme
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
@@ -893,7 +976,7 @@ struct CMInfoBarView: View {
     var body: some View {
             
         ///Optimized for any iPad in Portrait
-        if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+        if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
             ZStack {
                 if #available(iOS 16.0, *) {
                     Rectangle()
@@ -960,14 +1043,9 @@ struct CMInfoBarView: View {
             .fullScreenCover(isPresented: $showLearn, content: CMLearnView.init)
             .fullScreenCover(isPresented: $showPrompt, content: CMPromptView.init)
             .fullScreenCover(isPresented: $showAbout, content: CMAboutView.init)
-            
-            ///Detects Device Orientation Change
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
         
         ///Optimized for any iPad in Landscape
-        } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+        } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
             ZStack {
                 if #available(iOS 16.0, *) {
                     Rectangle()
@@ -1037,11 +1115,6 @@ struct CMInfoBarView: View {
             .fullScreenCover(isPresented: $showLearn, content: CMLearnView.init)
             .fullScreenCover(isPresented: $showPrompt, content: CMPromptView.init)
             .fullScreenCover(isPresented: $showAbout, content: CMAboutView.init)
-            
-            ///Detects Device Orientation Change
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
             
         ///Optimized for any iPhone in Portrait
         } else if horizontalSize == .compact && verticalSize == .regular {
@@ -1124,11 +1197,6 @@ struct CMInfoBarView: View {
             .fullScreenCover(isPresented: $showPrompt, content: CMPromptView.init)
             .fullScreenCover(isPresented: $showAbout, content: CMAboutView.init)
             
-            ///Detects Device Orientation Change
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
-            
         ///Optimized for any iPhone in Landscape
         } else if horizontalSize == .compact && verticalSize == .compact {
             ZStack {
@@ -1210,14 +1278,86 @@ struct CMInfoBarView: View {
             .fullScreenCover(isPresented: $showPrompt, content: CMPromptView.init)
             .fullScreenCover(isPresented: $showAbout, content: CMAboutView.init)
             
-            ///Detects Device Orientation Change
-            .onRotate { newOrientation in
-                orientation = newOrientation
-            }
-            
         ///Optimized for any iPhone Pro/Plus Landscape
         } else if horizontalSize == .regular && verticalSize == .compact {
+            ZStack {
+                HStack {
+                    Button() {
+                        showWelcome.toggle()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .frame(width: 70, height: 70)
+                                .foregroundColor(.white)
+                            
+                            Image(systemName: "line.3.horizontal.circle.fill")
+                                .font(.system(size: 60))
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.mainBlue)
+                                .colorScheme(.light)
+                                .padding(8)
+                        }
+                    }
+                    
+                    Button() {
+                        showLearn.toggle()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .frame(width: 70, height: 70)
+                                .foregroundColor(.white)
+                            
+                            Image(systemName: "graduationcap.circle.fill")
+                                .font(.system(size: 60))
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.purpleLearn)
+                                .colorScheme(.light)
+                                .padding(8)
+                        }
+                    }
+                    
+                    Button() {
+                        showPrompt.toggle()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .frame(width: 70, height: 70)
+                                .foregroundColor(.white)
+                            
+                            Image(systemName: "square.and.pencil.circle.fill")
+                                .font(.system(size: 60))
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.purpleRandom)
+                                .colorScheme(.light)
+                                .padding(8)
+                        }
+                    }
+                    
+                    Button() {
+                        showAbout.toggle()
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .frame(width: 70, height: 70)
+                                .foregroundColor(.white)
+                            
+                            Image(systemName: "info.circle.fill")
+                                .font(.system(size: 60))
+                                .frame(width: 60, height: 60)
+                                .foregroundColor(.mainPink)
+                                .colorScheme(.light)
+                                .padding(8)
+                        }
+                    }
+                }
+            }
+            .frame(width: 240, height: 100)
             
+            ///Presents each view based on boolean value
+            .fullScreenCover(isPresented: $showWelcome, content: CMWelcomeView.init)
+            .fullScreenCover(isPresented: $showLearn, content: CMLearnView.init)
+            .fullScreenCover(isPresented: $showPrompt, content: CMPromptView.init)
+            .fullScreenCover(isPresented: $showAbout, content: CMAboutView.init)
         }
     }
 }
@@ -1226,5 +1366,6 @@ struct CMInfoBarView: View {
 struct CMHomeView_Previews: PreviewProvider {
     static var previews: some View {
         CMHomeView()
+            .environmentObject(OrientationInfo())
     }
 }
