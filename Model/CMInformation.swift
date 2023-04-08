@@ -2,14 +2,18 @@
 //  File.swift
 //  
 //
-//  Created by Sarah Akhtar on 3/18/23.
+//  Created by Sarah Akhtar on 4/2/23.
 //
 
 import Foundation
 
+//MARK: Class for Global Information
 class Information {
     
+    ///Static variable for making all information global
     static let shared = Information()
+    
+    ///Variables for getting a random prompt based on type of note
     let randomPoem: [String]
     let randomHaiku: [String]
     let randomAEssay: [String]
@@ -22,6 +26,7 @@ class Information {
     let randomSong: [String]
     let randomSpeech: [String]
     
+    ///Variables for getting tips and guidelines for a given type of note
     let poemInstructions: [String]
     let haikuInstructions: [String]
     let aEssayInstructions: [String]
