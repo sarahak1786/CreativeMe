@@ -20,15 +20,16 @@ struct CMWelcomeView: View {
 
 struct CMWelcomeCard: View {
     
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
             ZStack {
+                
                 ///Optimized for any iPad in Portrait
-                if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+                if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                     GeometryReader { geo in
                         Rectangle()
                             .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -42,7 +43,7 @@ struct CMWelcomeCard: View {
                     }
                 
                 ///Optimized for any iPad in Landscape
-                } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+                } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                     GeometryReader { geo in
                         Rectangle()
                             .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -54,8 +55,8 @@ struct CMWelcomeCard: View {
                             .frame(width: geo.size.width * 0.60, height: geo.size.height * 0.75)
                             .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                     }
-                
-                ///Optimized for any iPhone in Portrait
+                    
+                    ///Optimized for any iPhone in Portrait
                 } else if horizontalSize == .compact && verticalSize == .regular {
                     GeometryReader { geo in
                         Rectangle()
@@ -103,14 +104,15 @@ struct CMWelcomeCard: View {
 
 struct CMWelcomeInformation: View {
     
-    @State private var orientation = UIDeviceOrientation.portrait
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
+        
         ///Optimized for any iPad in Portrait
-        if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+        if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
             VStack {
                 Text("Welcome!")
                     .font(.largeTitle.bold())
@@ -168,7 +170,7 @@ struct CMWelcomeInformation: View {
                     }
                     .font(.title.bold())
                     .foregroundColor(.white)
-                    .frame(width: 600, height: 50)
+                    .frame(width: 500, height: 50)
                     .background(Color.mainBlue)
                     .cornerRadius(20)
                     .padding()
@@ -176,22 +178,23 @@ struct CMWelcomeInformation: View {
             }
             
             ///Optimized for any iPad in Landscape
-            } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+            } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                 VStack {
                     Text("Welcome!")
-                        .font(.largeTitle.bold())
+                        .font(.title.bold())
                         .padding()
 
                     Text("CreativeMe helps you write better poems, sonnets, and more! Learn with interactive examples and save on our app.")
+                        .fontWeight(.medium)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .font(.title)
+                        .font(.title2)
                     
                     HStack {
                         VStack {
                             Image(systemName: "graduationcap.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 60, height: 60)
                                 .foregroundColor(.purpleLearn)
                                 .colorScheme(.light)
                                 .padding()
@@ -199,7 +202,7 @@ struct CMWelcomeInformation: View {
                             Image(systemName: "square.and.pencil.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 60, height: 60)
                                 .foregroundColor(.purpleRandom)
                                 .colorScheme(.light)
                                 .padding()
@@ -207,7 +210,7 @@ struct CMWelcomeInformation: View {
                             Image(systemName: "info.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 60, height: 60)
                                 .foregroundColor(.mainPink)
                                 .colorScheme(.light)
                                 .padding()
@@ -381,21 +384,36 @@ struct CMWelcomeInformation: View {
             
             ///Optimized for any iPhone Pro/Plus Landscape
             } else if horizontalSize == .regular && verticalSize == .compact {
-                VStack {
-                    Text("Welcome!")
-                        .font(.largeTitle.bold())
-                        .padding()
-
-                    Text("CreativeMe helps you write better poems, sonnets, and more! Learn with interactive examples and save on our app.")
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .font(.title)
+                HStack {
+                    VStack {
+                        Text("Welcome!")
+                            .font(.title.bold())
+                            .padding()
+                        
+                        Text("CreativeMe helps you write better poems, sonnets, and more! Learn with interactive examples and save on our app.")
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .frame(width: 240, height: 110)
+                            .font(.headline)
+                        
+                        VStack {
+                            Button("Let's get started!") {
+                                dismiss()
+                            }
+                            .font(.title3.bold())
+                            .foregroundColor(.white)
+                            .frame(width: 200, height: 50)
+                            .background(Color.mainBlue)
+                            .cornerRadius(20)
+                            .padding()
+                        }
+                    }
                     
                     HStack {
                         VStack {
                             Image(systemName: "graduationcap.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 40, height: 40)
                                 .foregroundColor(.purpleLearn)
                                 .colorScheme(.light)
                                 .padding()
@@ -403,7 +421,7 @@ struct CMWelcomeInformation: View {
                             Image(systemName: "square.and.pencil.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 40, height: 40)
                                 .foregroundColor(.purpleRandom)
                                 .colorScheme(.light)
                                 .padding()
@@ -411,7 +429,7 @@ struct CMWelcomeInformation: View {
                             Image(systemName: "info.circle.fill")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 80, height: 80)
+                                .frame(width: 40, height: 40)
                                 .foregroundColor(.mainPink)
                                 .colorScheme(.light)
                                 .padding()
@@ -419,29 +437,18 @@ struct CMWelcomeInformation: View {
                         
                         VStack(alignment: .leading) {
                             Text("Learn through hands-on tutorials for various forms of writing. Enable tutorials before you drive into writing for a easy refresher!")
-                                .font(.title2)
+                                .font(.caption)
                                 .padding()
                             
                             Text("Facing a creative mind block? Try our random prompt generator and see what you can come up under a selected time limit.")
-                                .font(.title2)
+                                .font(.caption)
                                 .padding()
                             
                             Text("Discover more about the application developer behind the scenes! This app was submitted for Apple’s Swift Student Challenge for WWDC ‘23.")
-                                .font(.title2)
+                                .font(.caption)
                                 .padding()
                         }
-                    }
-                    
-                    VStack {
-                        Button("Let's get started!") {
-                            dismiss()
-                        }
-                        .font(.title.bold())
-                        .foregroundColor(.white)
-                        .frame(width: 600, height: 50)
-                        .background(Color.mainBlue)
-                        .cornerRadius(20)
-                        .padding()
+                        .frame(width: 260, height: 320)
                 }
             }
         }
@@ -451,24 +458,6 @@ struct CMWelcomeInformation: View {
 struct CMWelcomeView_Previews: PreviewProvider {
     static var previews: some View {
         CMWelcomeView()
+            .environmentObject(OrientationInfo())
     }
 }
-
-/*
-     ///Optimized for any iPad in Portrait
-     if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
-     
-     ///Optimized for any iPad in Landscape
-     } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
-     
-     ///Optimized for any iPhone in Portrait
-     } else if horizontalSize == .compact && verticalSize == .regular {
-     
-     ///Optimized for any iPhone in Landscape
-     } else if horizontalSize == .compact && verticalSize == .compact {
-     
-     ///Optimized for any iPhone Pro/Plus Landscape
-     } else if horizontalSize == .regular && verticalSize == .compact {
- }
- 
- */

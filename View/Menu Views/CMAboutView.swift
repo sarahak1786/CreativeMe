@@ -7,8 +7,10 @@
 
 import SwiftUI
 
+//MARK: About Developer View
 struct CMAboutView: View {
     
+    ///Variables for ...
     @State private var orientation = UIDeviceOrientation.portrait
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
@@ -125,10 +127,6 @@ struct CMAboutView: View {
                     }
             }
         }
-        ///Detects Device Orientation Change
-        .onRotate { newOrientation in
-            orientation = newOrientation
-        }
     }
 }
 
@@ -226,10 +224,6 @@ struct CMAboutCard: View {
                             .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                 }
             }
-        }
-        ///Detects Device Orientation Change
-        .onRotate { newOrientation in
-            orientation = newOrientation
         }
     }
 }
@@ -521,10 +515,6 @@ struct CMAboutInformation: View {
                 }
             }
         }
-        ///Detects Device Orientation Change
-        .onRotate { newOrientation in
-            orientation = newOrientation
-        }
     }
 }
 
@@ -533,29 +523,3 @@ struct CMAboutView_Previews: PreviewProvider {
         CMAboutView()
     }
 }
-
-/*
- 
- ///Optimized for iPad Pro Portrait
- if (UIScreen.main.bounds.height >= 1194 && UIScreen.main.bounds.height <= 2732) && orientation.isPortrait {
- 
-     ///Optimized for iPad Pro Landscape
-     } (UIScreen.main.bounds.height >= 1194 && UIScreen.main.bounds.height <= 2732) && orientation.isLandscape {
-     
-     ///Optimized for any iPad in Portrait
-     } else if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
-     
-     ///Optimized for any iPad in Landscape
-     } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
-     
-     ///Optimized for any iPhone in Portrait
-     } else if horizontalSize == .compact && verticalSize == .regular {
-     
-     ///Optimized for any iPhone in Landscape
-     } else if horizontalSize == .compact && verticalSize == .compact {
-     
-     ///Optimized for any iPhone Pro/Plus Landscape
-     } else if horizontalSize == .regular && verticalSize == .compact {
- }
- 
- */

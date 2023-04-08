@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CMPromptView: View {
     
-    @State private var orientation = UIDeviceOrientation.unknown
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     @Environment(\.sizeCategory) var sizeCategory
@@ -20,57 +20,9 @@ struct CMPromptView: View {
         ZStack {
             Color.backgroundGradient
                 .ignoresSafeArea()
-            
-            ///Optimized for iPad Pro Portrait
-            if (UIScreen.main.bounds.height >= 1194 && UIScreen.main.bounds.height <= 2732) && orientation.isPortrait {
-                GeometryReader { geo in
-                    Rectangle()
-                        .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
-                        .cornerRadius(20)
-                        .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.60)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                
-                    CMPromptGenerator()
-                        .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.60)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY - geo.size.height * 0.06)
-                    
-                    Button("Back to Home") {
-                        dismiss()
-                    }
-                    .font(.title.bold())
-                    .foregroundColor(.white)
-                    .frame(width: geo.size.width * 0.60, height: 70)
-                    .background(Color.mainBlue)
-                    .cornerRadius(20)
-                    .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.width * 0.26)
-                }
-            
-                ///Optimized for iPad Pro Landscape
-                } else if (UIScreen.main.bounds.height >= 1194 && UIScreen.main.bounds.height <= 2732) && orientation.isLandscape {
-                    GeometryReader { geo in
-                        Rectangle()
-                            .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
-                            .cornerRadius(20)
-                            .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.60)
-                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
-                    
-                        CMPromptGenerator()
-                            .frame(width: geo.size.width * 0.75, height: geo.size.height * 0.60)
-                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY - geo.size.height * 0.06)
-                        
-                        Button("Back to Home") {
-                            dismiss()
-                        }
-                        .font(.title.bold())
-                        .foregroundColor(.white)
-                        .frame(width: geo.size.width * 0.60, height: 70)
-                        .background(Color.mainBlue)
-                        .cornerRadius(20)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.width * 0.26)
-                    }
                 
                 ///Optimized for any iPad in Portrait
-                } else if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
+                if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                     GeometryReader { geo in
                         Rectangle()
                             .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -94,7 +46,7 @@ struct CMPromptView: View {
                     }
                 
                 ///Optimized for any iPad in Landscape
-                } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
+                } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
                     GeometryReader { geo in
                         Rectangle()
                             .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
@@ -171,7 +123,7 @@ struct CMPromptView: View {
                         Rectangle()
                             .foregroundColor(colorScheme == .dark ? Color.mainGray : .white)
                             .cornerRadius(20)
-                            .frame(width: geo.size.width * 0.85, height: geo.size.height * 0.60)
+                            .frame(width: geo.size.width * 0.92, height: geo.size.height * 0.85)
                             .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
                     
                         CMPromptGenerator()
@@ -181,12 +133,12 @@ struct CMPromptView: View {
                         Button("Back to Home") {
                             dismiss()
                         }
-                        .font(.title.bold())
+                        .font(.title3.bold())
                         .foregroundColor(.white)
-                        .frame(width: geo.size.width * 0.60, height: 70)
+                        .frame(width: geo.size.width * 0.35, height: 40)
                         .background(Color.mainBlue)
                         .cornerRadius(20)
-                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.width * 0.26)
+                        .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY + geo.size.width * 0.15)
                     }
             }
         }
@@ -195,7 +147,7 @@ struct CMPromptView: View {
 
 struct CMPromptGenerator: View {
     
-    @State private var orientation = UIDeviceOrientation.unknown
+    @EnvironmentObject var orientationInfo: OrientationInfo
     @Environment(\.horizontalSizeClass) var horizontalSize
     @Environment(\.verticalSizeClass) var verticalSize
     
@@ -205,8 +157,9 @@ struct CMPromptGenerator: View {
     
     var body: some View {
         VStack {
-            ///Optimized for iPad Pro Portrait
-            if (UIScreen.main.bounds.height >= 1194 && UIScreen.main.bounds.height <= 2732) && orientation.isPortrait {
+                
+            ///Optimized for any iPad in Portrait
+            if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .portrait {
                 Text("Random Prompt Generator")
                     .font(.largeTitle)
                     .fontWeight(.thin)
@@ -235,197 +188,146 @@ struct CMPromptGenerator: View {
                 .buttonStyle(.borderedProminent)
                 .padding()
             
-                ///Optimized for iPad Pro Landscape
-                } else if (UIScreen.main.bounds.height >= 1194 && UIScreen.main.bounds.height <= 2732) && orientation.isLandscape {
-                    Text("Random Prompt Generator")
-                        .font(.largeTitle)
-                        .fontWeight(.thin)
-                    
-                    Rectangle()
-                        .frame(width: 200, height: 1)
-                    
-                    Picker("Type", selection: $type) {
-                        ForEach(types, id: \.self) {
-                            Text($0)
-                                .bold()
-                        }
+            ///Optimized for any iPad in Landscape
+            } else if horizontalSize == .regular && verticalSize == .regular && orientationInfo.orientation == .landscape {
+                Text("Random Prompt Generator")
+                    .font(.largeTitle)
+                    .fontWeight(.thin)
+                
+                Rectangle()
+                    .frame(width: 200, height: 1)
+                
+                Picker("Type", selection: $type) {
+                    ForEach(types, id: \.self) {
+                        Text($0)
+                            .bold()
                     }
-                    .scaleEffect(1.5)
-                    .padding()
-                    
-                    Text(prompt)
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .padding(60)
-                    
-                    Button("Generate Prompt") {
-                        getPrompt()
-                    }
+                }
+                .scaleEffect(1.5)
+                .padding()
+                
+                Text(prompt)
                     .font(.title)
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                    .fontWeight(.medium)
+                    .padding(60)
                 
-                ///Optimized for any iPad in Portrait
-                } else if horizontalSize == .regular && verticalSize == .regular && orientation.isPortrait {
-                    Text("Random Prompt Generator")
-                        .font(.largeTitle)
-                        .fontWeight(.thin)
-                    
-                    Rectangle()
-                        .frame(width: 200, height: 1)
-                    
-                    Picker("Type", selection: $type) {
-                        ForEach(types, id: \.self) {
-                            Text($0)
-                                .bold()
-                        }
-                    }
-                    .scaleEffect(1.5)
-                    .padding()
-                    
-                    Text(prompt)
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .padding(60)
-                    
-                    Button("Generate Prompt") {
-                        getPrompt()
-                    }
+                Button("Generate Prompt") {
+                    getPrompt()
+                }
+                .font(.title)
+                .buttonStyle(.borderedProminent)
+                .padding()
+            
+            ///Optimized for any iPhone in Portrait
+            } else if horizontalSize == .compact && verticalSize == .regular {
+                Text("Random Prompt Generator")
                     .font(.title)
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                    .fontWeight(.thin)
+                    .frame(width: 280, height: 100)
                 
-                ///Optimized for any iPad in Landscape
-                } else if horizontalSize == .regular && verticalSize == .regular && orientation.isLandscape {
-                    Text("Random Prompt Generator")
-                        .font(.largeTitle)
-                        .fontWeight(.thin)
-                    
-                    Rectangle()
-                        .frame(width: 200, height: 1)
-                    
-                    Picker("Type", selection: $type) {
-                        ForEach(types, id: \.self) {
-                            Text($0)
-                                .bold()
-                        }
-                    }
-                    .scaleEffect(1.5)
-                    .padding()
-                    
-                    Text(prompt)
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .padding(60)
-                    
-                    Button("Generate Prompt") {
-                        getPrompt()
-                    }
-                    .font(.title)
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                Rectangle()
+                    .frame(width: 200, height: 1)
                 
-                ///Optimized for any iPhone in Portrait
-                } else if horizontalSize == .compact && verticalSize == .regular {
-                    Text("Random Prompt Generator")
-                        .font(.title)
-                        .fontWeight(.thin)
-                        .frame(width: 280, height: 100)
-                    
-                    Rectangle()
-                        .frame(width: 200, height: 1)
-                    
-                    Picker("Type", selection: $type) {
-                        ForEach(types, id: \.self) {
-                            Text($0)
-                                .bold()
-                        }
+                Picker("Type", selection: $type) {
+                    ForEach(types, id: \.self) {
+                        Text($0)
+                            .bold()
                     }
-                    .scaleEffect(1.5)
-                    .padding()
-                    
-                    Text(prompt)
-                        .font(.headline)
-                        .fontWeight(.medium)
-                        .frame(width: 280, height: 120)
-                        .padding(60)
-                    
-                    Button("Generate Prompt") {
-                        getPrompt()
-                    }
-                    .font(.title3)
-                    .buttonStyle(.borderedProminent)
-                    .cornerRadius(100)
-                    .padding()
+                }
+                .scaleEffect(1.5)
+                .padding()
                 
-                ///Optimized for any iPhone in Landscape
-                } else if horizontalSize == .compact && verticalSize == .compact {
-                    HStack {
-                        VStack {
-                            Text("Random Prompt Generator")
-                                .font(.title)
-                                .fontWeight(.thin)
-                            
-                            Rectangle()
-                                .frame(width: 200, height: 1)
-                            
-                            Button("Generate Prompt") {
-                                getPrompt()
-                            }
-                            .font(.title3)
-                            .buttonStyle(.borderedProminent)
-                            .padding()
-                        }
+                Text(prompt)
+                    .font(.headline)
+                    .fontWeight(.medium)
+                    .frame(width: 280, height: 120)
+                    .padding(60)
+                
+                Button("Generate Prompt") {
+                    getPrompt()
+                }
+                .font(.title3)
+                .buttonStyle(.borderedProminent)
+                .cornerRadius(100)
+                .padding()
+            
+            ///Optimized for any iPhone in Landscape
+            } else if horizontalSize == .compact && verticalSize == .compact {
+                HStack {
+                    VStack {
+                        Text("Random Prompt Generator")
+                            .font(.title)
+                            .fontWeight(.thin)
                         
-                        VStack {
-                            Picker("Type", selection: $type) {
-                                ForEach(types, id: \.self) {
-                                    Text($0)
-                                        .bold()
-                                }
+                        Rectangle()
+                            .frame(width: 200, height: 1)
+                        
+                        Button("Generate Prompt") {
+                            getPrompt()
+                        }
+                        .font(.title3)
+                        .buttonStyle(.borderedProminent)
+                        .padding()
+                    }
+                    
+                    VStack {
+                        Picker("Type", selection: $type) {
+                            ForEach(types, id: \.self) {
+                                Text($0)
+                                    .bold()
                             }
-                            .offset(x: 10, y: 150)
-                            .scaleEffect(1.3)
-                            .padding()
-                            
-                            Text(prompt)
-                                .font(.headline)
-                                .fontWeight(.medium)
-                                .frame(width: 220, height: 400)
-                                .padding(60)
-                                .offset(y: -10)
                         }
+                        .offset(x: 10, y: 150)
+                        .scaleEffect(1.3)
+                        .padding()
+                        
+                        Text(prompt)
+                            .font(.headline)
+                            .fontWeight(.medium)
+                            .frame(width: 220, height: 400)
+                            .padding(60)
+                            .offset(y: -10)
                     }
-                
-                ///Optimized for any iPhone Pro/Plus Landscape
-                } else if horizontalSize == .regular && verticalSize == .compact {
-                    Text("Random Prompt Generator")
-                        .font(.largeTitle)
-                        .fontWeight(.thin)
-                    
-                    Rectangle()
-                        .frame(width: 200, height: 1)
-                    
-                    Picker("Type", selection: $type) {
-                        ForEach(types, id: \.self) {
-                            Text($0)
-                                .bold()
+                }
+            
+            ///Optimized for any iPhone Pro/Plus Landscape
+            } else if horizontalSize == .regular && verticalSize == .compact {
+                HStack {
+                    VStack {
+                        Text("Random Prompt Generator")
+                            .font(.title)
+                            .fontWeight(.thin)
+                        
+                        Rectangle()
+                            .frame(width: 200, height: 1)
+                        
+                        Button("Generate Prompt") {
+                            getPrompt()
                         }
+                        .font(.title3)
+                        .buttonStyle(.borderedProminent)
+                        .padding()
                     }
-                    .scaleEffect(1.5)
-                    .padding()
                     
-                    Text(prompt)
-                        .font(.title)
-                        .fontWeight(.medium)
-                        .padding(60)
-                    
-                    Button("Generate Prompt") {
-                        getPrompt()
+                    VStack {
+                        Picker("Type", selection: $type) {
+                            ForEach(types, id: \.self) {
+                                Text($0)
+                                    .bold()
+                            }
+                        }
+                        .offset(x: 10, y: 150)
+                        .scaleEffect(1.3)
+                        .padding()
+                        
+                        Text(prompt)
+                            .font(.headline)
+                            .fontWeight(.medium)
+                            .frame(width: 220, height: 400)
+                            .padding(60)
+                            .offset(y: -10)
                     }
-                    .font(.title)
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+                }
             }
         }
     }
@@ -462,5 +364,6 @@ struct CMPromptGenerator: View {
 struct CMRandomPrompt_Previews: PreviewProvider {
     static var previews: some View {
         CMPromptView()
+            .environmentObject(OrientationInfo())
     }
 }
