@@ -1,4 +1,4 @@
-![CreativeMe - Learn](https://github.com/sarahak1786/CreativeMe/assets/127272701/2245011b-926b-464d-89f3-a8dc576f3d13)# CreativeMe — An App for Learning How to Write Literature
+# CreativeMe — An App for Learning How to Write Literature
 
 ![CreativeMe - Cover 1 0](https://github.com/sarahak1786/CreativeMe/assets/127272701/929cd8d0-de15-4e74-9cbc-189727fdc70c)
 
